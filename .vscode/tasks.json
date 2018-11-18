@@ -7,9 +7,21 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Grafy.csproj"
+                "${workspaceFolder}/taio.csproj"
             ],
             "problemMatcher": "$msCompile"
-        }
+        },
+        {
+            "label": "buildR",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/taio.csproj",
+                "-c",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile"
+        }        
     ]
 }
