@@ -78,7 +78,7 @@ namespace taio
 
         public string ToString(bool modular = true)
         {
-            if(modular = false)
+            if(modular == false)
             {
                 throw new NotImplementedException();
             }
