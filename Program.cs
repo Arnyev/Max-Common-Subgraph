@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using taio;
 
 namespace Taio
 {
@@ -9,42 +11,48 @@ namespace Taio
     {
         static void Main(string[] args)
         {
+            //var delimiter = ',';
+            //if (args.Length < 2)
+            //{
+            //    Console.WriteLine("usage: solver <input_file_1> <input_file_2>[<delimiter>]");
+            //    return;
+            //}
+            //if (args.Length >= 3)
+            //{
+            //    delimiter = args[2][0];
+            //}
+
+            //var graph1 = DeserializeGraphFromCsv(args[0], delimiter);
+            //var graph2 = DeserializeGraphFromCsv(args[1], delimiter);
+
+            //var result = McSplitAlgorithm.McSplit(graph1, graph2);
+            //var r2 = McSplitApproximation.Find(graph1, graph2, 4);
+
+            //for (int i = 0; i < result.Count; i++)
+            //{
+            //    Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
+            //    PrintResult(result[i]);
+            //}
+
+
+            //var g1 = DeserializeG(args[0], delimiter);
+            //var g2 = DeserializeG(args[1], delimiter);
+
+            //var r = Approximation.SolveMaxCommon(g1, g2);
+
+            //for (int i = 0; i < r.Count; i++)
+            //{
+            //    Console.WriteLine($"=== M common induced subgraph no. {i + 1} ===");
+            //    PrintResult(r[i]);
+            //}
+
             var delimiter = ',';
-            if (args.Length < 2)
-            {
-                Console.WriteLine("usage: solver <input_file_1> <input_file_2>[<delimiter>]");
-                return;
-            }
-            if (args.Length >= 3)
-            {
-                delimiter = args[2][0];
-            }
+            var gm1 = DeserializeG(@"..\..\..\Graph1.csv", delimiter);
+            var gm2 = DeserializeG(@"..\..\..\Graph2.csv", delimiter);
 
-            var graph1 = DeserializeGraphFromCsv(args[0], delimiter);
-            var graph2 = DeserializeGraphFromCsv(args[1], delimiter);
-
-            var result = McSplitAlgorithm.McSplit(graph1, graph2);
-            var r2 = McSplitApproximation.Find(graph1, graph2, 4);
-
-            for (int i = 0; i < result.Count; i++)
-            {
-                Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
-                PrintResult(result[i]);
-            }
-
-
-            var g1 = DeserializeG(args[0], delimiter);
-            var g2 = DeserializeG(args[1], delimiter);
-
-            var r = Approximation.SolveMaxCommon(g1, g2);
-
-            for (int i = 0; i < r.Count; i++)
-            {
-                Console.WriteLine($"=== M common induced subgraph no. {i + 1} ===");
-                PrintResult(r[i]);
-            }
-
-
+            var mySolver = new MaxInducedSubgraphCliqueApproximation();
+            var r3 = mySolver.FindCommonSubgraph(gm1, gm2);
+            PrintResult(r3);
         }
 
         static Graph DeserializeGraphFromCsv(string csvPath, char separator)
@@ -123,6 +131,35 @@ namespace Taio
                 Console.WriteLine($"{mapping.Item1 + 1} <==> {mapping.Item2 + 1}");
             }
             Console.WriteLine();
+        }
+
+        public static void SaveIsomorphismListToCsv(IList<(int a, int b)> list)
+        {
+            string filePath = @"..\..\..\Isomorphism.csv";
+            string delimiter = ",";
+            var N = list.Count;
+
+            StringBuilder sb1 = new StringBuilder();
+            StringBuilder sb2 = new StringBuilder();
+
+            for (int i = 0; i < N; i++)
+            {
+                sb1.Append(list[i].a);
+                sb2.Append(list[i].b);
+                if (i == N - 1)
+                {
+                    sb1.Append("\r\n");
+                    sb2.Append("\r\n");
+                }
+                else
+                {
+                    sb1.Append(delimiter);
+                    sb2.Append(delimiter);
+                }
+            }
+
+            File.WriteAllText(filePath, sb1.ToString());
+            File.AppendAllText(filePath, sb2.ToString());
         }
     }
 }
