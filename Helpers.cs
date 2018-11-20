@@ -25,10 +25,31 @@ namespace Taio
         }
 
 
-        public static int SelectCommon(List<(uint, uint)> mapping, Graph g, Graph h)
+        public static int SelectCommon(List<(int, int)> mapping, bool[,] g, bool[,] h)
         {
-            var val = mapping.Sum(y => Math.Abs(g.GetNeighbours(y.Item1).Count - h.GetNeighbours(y.Item2).Count));
-            return val;
+            int mappingValue = 0;
+            var sizeG = g.GetLength(0);
+            var sizeH = h.GetLength(0);
+
+            foreach (var pair in mapping)
+            {
+                var neighboursG = 0;
+                var neighboursH = 0;
+                var vertexG = pair.Item1;
+                var vertexH = pair.Item2;
+
+                for (int i = 0; i < sizeG; i++)
+                    if (g[vertexG, i])
+                        neighboursG++;
+
+                for (int i = 0; i < sizeH; i++)
+                    if (h[vertexH, i])
+                        neighboursH++;
+
+                mappingValue += Math.Abs(neighboursG - neighboursH);
+            }
+            
+            return mappingValue;
         }
     }
 }
