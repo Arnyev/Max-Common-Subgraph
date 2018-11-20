@@ -21,11 +21,42 @@ namespace Taio
             //{
             //    delimiter = args[2][0];
             //}
+            var delimiter = ',';
+            var edgeVersion = false;
+
+            if (args.Length < 2)
+            {
+                Console.WriteLine("usage: solver <input_file_1> <input_file_2> [--delimiter <char>] [--edgeVersion]");
+                return;
+            }
+
+            bool delimiterFlag = false;
+            for (int i = 2; i < args.Length; i++)
+            {
+                if (delimiterFlag)
+                {
+                    delimiter = args[i][0];
+                    continue;
+                }
+                switch (args[i])
+                {
+                    case "--delimiter":
+                        delimiterFlag = true;
+                        break;
+                    case "--edgeVersion":
+                        edgeVersion = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             //var graph1 = DeserializeGraphFromCsv(, delimiter);
             //var graph2 = DeserializeGraphFromCsv(args[1], delimiter);
 
             //var result = McSplitAlgorithm.McSplit(graph1, graph2);
+            var result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
+            //var r2 = McSplitApproximation.Find(graph1, graph2, 4);
 
             //for (int i = 0; i < result.Count; i++)
             //{
