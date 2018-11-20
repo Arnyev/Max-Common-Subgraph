@@ -10,20 +10,46 @@ namespace Taio
         static void Main(string[] args)
         {
             var delimiter = ',';
-            var edgeVersion = false;
+            var algorithmVersionFlag = false;
+            var algorithmNumber = 1;
+            var verbose = false;
+            var outputFile = "result.csv";
+            string graph1File = null;
+            string graph2File = null;
 
             if (args.Length < 2)
             {
-                Console.WriteLine("usage: solver <input_file_1> <input_file_2> [--delimiter <char>] [--edgeVersion]");
+                Console.WriteLine("usage: dotnet run input1 input2 [--delimiter c] [--algo alg_number] [--output filename] [--verbose]");
+                Console.WriteLine("You can choose one of 6 algorithms:");
+                Console.WriteLine("       1 - exact (maximizing V), default");
+                Console.WriteLine("       2 - exact (maximizing V+E)");
+                Console.WriteLine("       3 - approximating algorithm A (V)");
+                Console.WriteLine("       4 - approximating algorithm A (V+E)");
+                Console.WriteLine("       5 - approximating algorithm B (V)");
+                Console.WriteLine("       6 - approximating algorithm B (V+E)");
                 return;
             }
 
             bool delimiterFlag = false;
-            for (int i = 2; i < args.Length; i++)
+            bool outputFlag = false;
+            for (int i = 0; i < args.Length; i++)
             {
+                if (algorithmVersionFlag)
+                {
+                    algorithmVersionFlag = false;
+                    int.TryParse(args[i], out algorithmNumber);
+                    continue;
+                }
                 if (delimiterFlag)
                 {
+                    delimiterFlag = false;
                     delimiter = args[i][0];
+                    continue;
+                }
+                if (outputFlag)
+                {
+                    outputFlag = false;
+                    outputFile = args[i];
                     continue;
                 }
                 switch (args[i])
@@ -31,39 +57,78 @@ namespace Taio
                     case "--delimiter":
                         delimiterFlag = true;
                         break;
-                    case "--edgeVersion":
-                        edgeVersion = true;
+                    case "--algo":
+                        algorithmVersionFlag = true;
+                        break;
+                    case "--output":
+                        outputFlag = true;
+                        break;
+                    case "--verbose":
+                        verbose = true;
                         break;
                     default:
+                        if (graph1File != null) graph2File = args[i];
+                        else graph1File = args[i];
                         break;
                 }
             }
-
-            var graph1 = DeserializeGraphFromCsv(args[0], delimiter);
-            var graph2 = DeserializeGraphFromCsv(args[1], delimiter);
-
-            var result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
-            //var r2 = McSplitApproximation.Find(graph1, graph2, 4);
-
-            for (int i = 0; i < result.Count; i++)
+            if (graph1File == null || graph2File == null)
             {
-                Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
-                PrintResult(result[i]);
+                Console.WriteLine("usage: solver <input_file_1> <input_file_2> [--delimiter <char>] [--edgeVersion] ");
+                return;
             }
 
+
+            var graph1 = DeserializeGraphFromCsv(graph1File, delimiter);
+            var graph2 = DeserializeGraphFromCsv(graph2File, delimiter);
+
+            var edgeVersion = true;
+            switch (algorithmNumber)
+            {
+                case 1:
+                    edgeVersion = false;
+                    goto case 2;
+                case 2:
+                    var results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
+                    using (var file = new StreamWriter("result.csv"))
+                    {
+                        foreach (var result in results)
+                        {
+                            file.WriteLine(string.Join(",", result.Select(pair => pair.Item1)));
+                            file.WriteLine(string.Join(",", result.Select(pair => pair.Item2)));
+                            file.WriteLine();
+                        }
+                    }
+                    if (verbose)
+                    {
+                        for (int i = 0; i < results.Count; i++)
+                        {
+                            Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
+                            PrintResult(results[i]);
+                        }
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Wrong algorithm number!");
+                    break;
+            }
+
+
+
+            //var r2 = McSplitApproximation.Find(graph1, graph2, 4);
 
             var g1 = DeserializeG(args[0], delimiter);
             var g2 = DeserializeG(args[1], delimiter);
-
             var r = Approximation.SolveMaxCommon(g1, g2);
 
-            for (int i = 0; i < r.Count; i++)
+            if (verbose)
             {
-                Console.WriteLine($"=== M common induced subgraph no. {i + 1} ===");
-                PrintResult(r[i]);
+                for (int i = 0; i < r.Count; i++)
+                {
+                    Console.WriteLine($"=== M common induced subgraph no. {i + 1} ===");
+                    PrintResult(r[i]);
+                }
             }
-
-
         }
 
         static Graph DeserializeGraphFromCsv(string csvPath, char separator)
@@ -98,17 +163,6 @@ namespace Taio
             return new Graph(nodesNumber, matrix);
         }
 
-        private static Graph Generate(int nodesNumber, double density)
-        {
-            var matrix = new bool[nodesNumber, nodesNumber];
-            var rand = new Random();
-            for (int i = 0; i < nodesNumber - 1; i++)
-                for (int j = i + 1; j < nodesNumber; j++)
-                    matrix[i, j] = matrix[j, i] = rand.NextDouble() < density;
-
-            return new Graph((uint)nodesNumber, matrix);
-        }
-
         static bool[,] DeserializeG(string csvPath, char separator)
         {
             var file = File.ReadAllLines(csvPath);
@@ -131,6 +185,17 @@ namespace Taio
             }
 
             return matrix;
+        }
+
+        private static Graph Generate(int nodesNumber, double density)
+        {
+            var matrix = new bool[nodesNumber, nodesNumber];
+            var rand = new Random();
+            for (int i = 0; i < nodesNumber - 1; i++)
+                for (int j = i + 1; j < nodesNumber; j++)
+                    matrix[i, j] = matrix[j, i] = rand.NextDouble() < density;
+
+            return new Graph((uint)nodesNumber, matrix);
         }
 
         static void PrintResult(List<(uint, uint)> result)
