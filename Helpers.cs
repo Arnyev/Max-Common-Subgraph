@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,8 +48,18 @@ namespace Taio
 
                 mappingValue += Math.Abs(neighboursG - neighboursH);
             }
-            
+
             return mappingValue;
+        }
+
+        public static int GetEdgeCount(List<(int, int)> mapping, bool[,] graphG)
+        {
+            int edgeCount = 0;
+            for (int i = 0; i < mapping.Count; i++)
+                for (int j = i + 1; j < mapping.Count; j++)
+                    if (graphG[mapping[i].Item1, mapping[j].Item1])
+                        edgeCount++;
+            return edgeCount;
         }
     }
 }

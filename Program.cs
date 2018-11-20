@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,16 +11,6 @@ namespace Taio
     {
         static void Main(string[] args)
         {
-            //var delimiter = ',';
-            //if (args.Length < 2)
-            //{
-            //    Console.WriteLine("usage: solver <input_file_1> <input_file_2>[<delimiter>]");
-            //    return;
-            //}
-            //if (args.Length >= 3)
-            //{
-            //    delimiter = args[2][0];
-            //}
             var delimiter = ',';
             var algorithmVersionFlag = false;
             var algorithmNumber = 1;
@@ -90,44 +80,10 @@ namespace Taio
                 return;
             }
 
-            //var graph1 = DeserializeGraphFromCsv(, delimiter);
-            //var graph2 = DeserializeGraphFromCsv(args[1], delimiter);
-
-            //var result = McSplitAlgorithm.McSplit(graph1, graph2);
-            var result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
-            //var r2 = McSplitApproximation.Find(graph1, graph2, 4);
-
-            //for (int i = 0; i < result.Count; i++)
-            //{
-            //    Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
-            //    PrintResult(result[i]);
-            //}
-
-
-            //var g1 = DeserializeG(args[0], delimiter);
-            //var g2 = DeserializeG(args[1], delimiter);
-
-            //var r = Approximation.SolveMaxCommon(g1, g2);
-
-            //for (int i = 0; i < r.Count; i++)
-            //{
-            //    Console.WriteLine($"=== M common induced subgraph no. {i + 1} ===");
-            //    PrintResult(r[i]);
-            //}
-
-            var delimiter = ',';
-            var gm1 = DeserializeG(args[0], delimiter);
-            var gm2 = DeserializeG(args[1], delimiter);
-
-            var mySolver = new MaxInducedSubgraphCliqueApproximation();
-            var r3 = mySolver.FindCommonSubgraph(gm1, gm2);
-            var r2 = McSplitApproximation.Find(gm1, gm2, 8);
-            var r4 = McSplitAlgorithm.McSplit(new Graph((uint)gm1.GetLength(0), gm1), new Graph((uint)gm2.GetLength(0), gm2));
-
-            PrintResult(r3);
-
             var graph1 = DeserializeGraphFromCsv(graph1File, delimiter);
             var graph2 = DeserializeGraphFromCsv(graph2File, delimiter);
+            var g1 = DeserializeG(graph1File, delimiter);
+            var g2 = DeserializeG(graph2File, delimiter);
 
             var edgeVersion = true;
             switch (algorithmNumber)
@@ -155,26 +111,52 @@ namespace Taio
                         }
                     }
                     break;
+                case 3:
+                    edgeVersion = false;
+                    goto case 4;
+                case 4:
+                    var solver = new MaxInducedSubgraphCliqueApproximation();
+                    var result2 = solver.FindCommonSubgraph(g1, g2, edgeVersion);
+                    using (var file = new StreamWriter(outputFile))
+                    {
+                        file.WriteLine(string.Join(",", result2.Select(pair => pair.Item1)));
+                        file.WriteLine(string.Join(",", result2.Select(pair => pair.Item2)));
+                        file.WriteLine();
+                    }
+                    if (verbose)
+                    {
+                        PrintResult(result2);
+                    }
+                    break;
+                case 5:
+                    var result3 = McSplitApproximation.Find(g1, g2, 4);
+                    using (var file = new StreamWriter(outputFile))
+                    {
+                        file.WriteLine(string.Join(",", result3.Select(pair => pair.Item1)));
+                        file.WriteLine(string.Join(",", result3.Select(pair => pair.Item2)));
+                        file.WriteLine();
+                    }
+                    if (verbose)
+                    {
+                        PrintResult(result3.Select(x => ((uint)x.Item1, (uint)x.Item2)).ToList());
+                    }
+                    break;
+                case 6:
+                    var result4 = McSplitApproximationEdge.Find(g1, g2, 4);
+                    using (var file = new StreamWriter(outputFile))
+                    {
+                        file.WriteLine(string.Join(",", result4.Select(pair => pair.Item1)));
+                        file.WriteLine(string.Join(",", result4.Select(pair => pair.Item2)));
+                        file.WriteLine();
+                    }
+                    if (verbose)
+                    {
+                        PrintResult(result4.Select(x => ((uint)x.Item1, (uint)x.Item2)).ToList());
+                    }
+                    break;
                 default:
                     Console.WriteLine("Wrong algorithm number!");
                     break;
-            }
-
-
-
-            //var r2 = McSplitApproximation.Find(graph1, graph2, 4);
-
-            var g1 = DeserializeG(args[0], delimiter);
-            var g2 = DeserializeG(args[1], delimiter);
-            var r = Approximation.SolveMaxCommon(g1, g2);
-
-            if (verbose)
-            {
-                for (int i = 0; i < r.Count; i++)
-                {
-                    Console.WriteLine($"=== M common induced subgraph no. {i + 1} ===");
-                    PrintResult(r[i]);
-                }
             }
         }
 
@@ -286,4 +268,3 @@ namespace Taio
         }
     }
 }
-

@@ -4,12 +4,14 @@ using static System.Math;
 
 namespace Taio
 {
-    class McSplitApproximation
+    class McSplitApproximationEdge
     {
         private static int ExpectedSize;
         private static List<(int, int)> maxMapping;
         private static List<(List<int>, List<int>)> bestFuture;
         private static (List<int>, List<int>) bestFutureUnconnected;
+        private static List<(int, int)> maxMappingEdge;
+        private static int bestEdgeCount;
         private static int bestFutureWorth;
         private static bool[,] _graphG;
         private static bool[,] _graphH;
@@ -25,6 +27,8 @@ namespace Taio
                     (Enumerable.Range(0, sizeG).ToList(),
                      Enumerable.Range(0, sizeH).ToList());
 
+            maxMappingEdge = new List<(int, int)>();
+
             bestFutureWorth = int.MaxValue;
             _graphG = graphG;
             _graphH = graphH;
@@ -37,8 +41,9 @@ namespace Taio
                 ExpectedSize = ExpectedSize + stepSize;
             } while (bestFuture.Count > 0);
 
-            return maxMapping;
+            return maxMappingEdge;
         }
+
 
         private static void FindRecursive(List<(List<int>, List<int>)> classes, (List<int>, List<int>) unconnectedClass, List<(int, int)> mapping)
         {
@@ -51,12 +56,14 @@ namespace Taio
                 bestFutureUnconnected = (unconnectedClass.Item1.ToList(), unconnectedClass.Item2.ToList());
             }
 
-            if (mapping.Count == ExpectedSize || (classes.Count == 0 && mapping.Count != 0))
-                return;
+            var edgeCount = Helpers.GetEdgeCount(mapping, _graphG);
+            if (edgeCount > bestEdgeCount)
+            {
+                bestEdgeCount = edgeCount;
+                maxMappingEdge = mapping.ToList();
+            }
 
-            var maximumPossible = mapping.Count + classes.Sum(lists => Min(lists.Item1.Count, lists.Item2.Count))
-                                    + Min(unconnectedClass.Item1.Count, unconnectedClass.Item2.Count);
-            if (maximumPossible <= maxMapping.Count)
+            if (mapping.Count == ExpectedSize || (classes.Count == 0 && mapping.Count != 0))
                 return;
 
             var (g, h) = mapping.Count != 0 ? classes[0] : unconnectedClass;

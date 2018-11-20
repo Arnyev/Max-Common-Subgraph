@@ -5,14 +5,14 @@ using System.Text;
 
 namespace taio
 {
-    public class GraphMichau
+    public class GraphModularVersion
     {
         public int Size { get; }
-        protected bool[,] vertices;
+        public bool[,] vertices;
         private int[] degrees;
         public int? size2 { set; private get; }
 
-        public GraphMichau(bool[,] _vertices)
+        public GraphModularVersion(bool[,] _vertices)
         {
             Size = _vertices.GetLength(0);
             this.vertices = new bool[Size, Size];
