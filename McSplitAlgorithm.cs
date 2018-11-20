@@ -106,7 +106,7 @@ namespace Taio
                     maxMappingSize = mapping.Count;
                     maxEdgesCount = edgesCount;
                 }
-                else if (mapping.Count == maxMappingSize)
+                else if (mapping.Count + edgesCount == maxMappingSize + maxEdgesCount)
                 {
                     maxMappings.Add(mapping);
                 }
@@ -115,7 +115,6 @@ namespace Taio
                 if (g == null) return;
 
                 var v = g.First();
-                edgesCount += mapping.Select(pair => pair.Item1).Where(u => graphG.AreAdjacent(u, v)).Count();
                 foreach (var w in h)
                 {
                     var futurePrim = new List<(List<uint>, List<uint>)>();
@@ -135,7 +134,11 @@ namespace Taio
                             futurePrim.Add((gBis, hBis));
                         }
                     }
-                    McSplitRecursiveEdgesVersion(futurePrim, mapping.Union(new List<(uint, uint)>() { (v, w) }).ToList(), edgesCount);
+                    McSplitRecursiveEdgesVersion(
+                        futurePrim,
+                        mapping.Union(new List<(uint, uint)>() { (v, w) }).ToList(),
+                        edgesCount + mapping.Select(pair => pair.Item1).Where(u => graphG.AreAdjacent(u, v)).Count()
+                        );
                 }
                 var gWithoutV = g.Where(x => x != v).ToList();
                 future.Remove((g, h));
@@ -143,7 +146,7 @@ namespace Taio
                 {
                     future.Add((gWithoutV, h));
                 }
-                McSplitRecursive(future, mapping);
+                McSplitRecursiveEdgesVersion(future, mapping, edgesCount);
             }
         }
     }
