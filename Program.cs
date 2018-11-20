@@ -90,7 +90,7 @@ namespace Taio
                     goto case 2;
                 case 2:
                     var results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
-                    using (var file = new StreamWriter("result.csv"))
+                    using (var file = new StreamWriter(outputFile))
                     {
                         foreach (var result in results)
                         {
