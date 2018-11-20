@@ -4,6 +4,8 @@ using System;
 
 namespace taio
 {
+    using System.Collections.ObjectModel;
+
     public interface IGraphSolver
     {
         List<(uint A, uint B)> FindCommonSubgraph(bool[,] graphA, bool[,] graphB);
@@ -23,9 +25,9 @@ namespace taio
 
             isomorphismSolver.MaxCliqueHeu(G, 1);
             var result = isomorphismSolver.DecomposeModularGraph(G1, G2, isomorphismSolver.CliqueVertices);
+            var realResult = isomorphismSolver.GetMaximumConnectedGraph(G1, result);
 
-            //Console.WriteLine(isomorphismSolver.Value);
-            return result;
+            return realResult;
         }
     }
 
@@ -109,6 +111,77 @@ namespace taio
                     CliqueHeu(G, U, 1, currentClique);
                     currentClique.Remove(i);
                 }
+            }
+        }
+
+        public List<(uint a, uint b)> GetMaximumConnectedGraph(GraphMichau G, List<(uint a, uint b)> vertices)
+        {
+            var tmpList = new List<int>();
+            foreach (var v in vertices)
+            {
+                tmpList.Add((int)v.a);
+            }
+
+            var graphsList = FindAllConnectedSubgraphs(G, tmpList);
+            var isomorphism = new Dictionary<uint, uint>();
+            foreach (var tup in vertices)
+            {
+                isomorphism[tup.a] = tup.b;
+            }
+
+            List<int> max = null;
+            int maxCount = 0;
+            foreach (var g in graphsList)
+            {
+                if (g.Count > maxCount)
+                {
+                    maxCount = g.Count;
+                    max = g;
+                }
+            }
+
+            var result = new List<(uint A, uint B)>();
+            foreach (var v in max)
+            {
+                result.Add((a:(uint)v, b:isomorphism[(uint)v]));
+            }
+
+            return result;
+        }
+
+        private List<List<int>> FindAllConnectedSubgraphs(GraphMichau G, List<int> vertices)
+        {
+            if (G.Size == 0) return null;
+            var verticesLeft = new SortedSet<int>();
+            visited = new bool[G.Size];
+
+            foreach (var v in vertices)
+            {
+                verticesLeft.Add(v);
+            }
+
+            var result = new List<List<int>>();
+            while (verticesLeft.Any())
+            {
+                var partialResult = new List<int>();
+                DFS(G, verticesLeft.First(), partialResult);
+                result.Add(partialResult);
+                verticesLeft.RemoveWhere(v => partialResult.Contains(v));
+            }
+
+            return result;
+        }
+
+        private bool[] visited;
+        private void DFS(GraphMichau G, int v, List<int> result)
+        {
+            visited[v] = true;
+            result.Add(v);
+
+            foreach (var vertex in G.GetEdges(v))
+            {
+                if (!visited[vertex])
+                    DFS(G, vertex, result);
             }
         }
 
