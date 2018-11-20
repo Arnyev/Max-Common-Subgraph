@@ -137,7 +137,7 @@ namespace Taio
                     McSplitRecursiveEdgesVersion(
                         futurePrim,
                         mapping.Union(new List<(uint, uint)>() { (v, w) }).ToList(),
-                        edgesCount + mapping.Select(pair => pair.Item1).Where(u => graphG.AreAdjacent(u, v)).Count()
+                        edgesCount + mapping.Where(pair => graphG.AreAdjacent(v, pair.Item1)).Count()
                         );
                 }
                 var gWithoutV = g.Where(x => x != v).ToList();
