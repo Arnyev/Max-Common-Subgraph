@@ -14,11 +14,11 @@ namespace Taio
             var delimiter = ',';
             var algorithmVersionFlag = false;
             var algorithmNumber = 1;
-            var verbose = false;
+            var quiet = false;
             var outputFile = "result.csv";
             string graph1File = null;
             string graph2File = null;
-            var usageMessage = "usage: MaxCommonSubgraph.exe input1 input2 [--delimiter char] [--algo alg_number] [--output filename] [--verbose]";
+            var usageMessage = "usage: MaxCommonSubgraph.exe input1 input2 [--delimiter char] [--algo alg_number] [--output filename] [--quiet]";
 
             if (args.Length < 2)
             {
@@ -66,8 +66,8 @@ namespace Taio
                     case "--output":
                         outputFlag = true;
                         break;
-                    case "--verbose":
-                        verbose = true;
+                    case "--quiet":
+                        quiet = true;
                         break;
                     default:
                         if (graph1File != null) graph2File = args[i];
@@ -81,10 +81,23 @@ namespace Taio
                 return;
             }
 
-            var graph1 = DeserializeGraphFromCsv(graph1File, delimiter);
-            var graph2 = DeserializeGraphFromCsv(graph2File, delimiter);
+            Graph graph1 = null, graph2 = null;
+            try
+            {
+                graph1 = DeserializeGraphFromCsv(graph1File, delimiter);
+                graph2 = DeserializeGraphFromCsv(graph2File, delimiter);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine($"Cannot find file: {e.FileName}");
+                return;
+            }
+
             var g1 = DeserializeG(graph1File, delimiter);
             var g2 = DeserializeG(graph2File, delimiter);
+
+            List<List<(uint, uint)>> results = null;
+            List<(uint, uint)> result = null;
 
             var edgeVersion = true;
             switch (algorithmNumber)
@@ -93,71 +106,59 @@ namespace Taio
                     edgeVersion = false;
                     goto case 2;
                 case 2:
-                    var results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
-                    using (var file = new StreamWriter(outputFile))
-                    {
-                        foreach (var result in results)
-                        {
-                            file.WriteLine(string.Join(",", result.Select(pair => pair.Item1)));
-                            file.WriteLine(string.Join(",", result.Select(pair => pair.Item2)));
-                            file.WriteLine();
-                        }
-                    }
-                    if (verbose)
-                    {
-                        for (int i = 0; i < results.Count; i++)
-                        {
-                            Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
-                            PrintResult(results[i]);
-                        }
-                    }
+                    results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
                     break;
                 case 3:
                     edgeVersion = false;
                     goto case 4;
                 case 4:
-                    var solver = new MaxInducedSubgraphCliqueApproximation();
-                    var result2 = solver.FindCommonSubgraph(g1, g2, edgeVersion);
-                    using (var file = new StreamWriter(outputFile))
-                    {
-                        file.WriteLine(string.Join(",", result2.Select(pair => pair.Item1)));
-                        file.WriteLine(string.Join(",", result2.Select(pair => pair.Item2)));
-                        file.WriteLine();
-                    }
-                    if (verbose)
-                    {
-                        PrintResult(result2);
-                    }
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion);
                     break;
                 case 5:
-                    var result3 = McSplitApproximation.Find(g1, g2, 4);
-                    using (var file = new StreamWriter(outputFile))
-                    {
-                        file.WriteLine(string.Join(",", result3.Select(pair => pair.Item1)));
-                        file.WriteLine(string.Join(",", result3.Select(pair => pair.Item2)));
-                        file.WriteLine();
-                    }
-                    if (verbose)
-                    {
-                        PrintResult(result3.Select(x => ((uint)x.Item1, (uint)x.Item2)).ToList());
-                    }
+                    result = McSplitApproximation.Find(g1, g2, 4);
                     break;
                 case 6:
-                    var result4 = McSplitApproximationEdge.Find(g1, g2, 4);
-                    using (var file = new StreamWriter(outputFile))
-                    {
-                        file.WriteLine(string.Join(",", result4.Select(pair => pair.Item1)));
-                        file.WriteLine(string.Join(",", result4.Select(pair => pair.Item2)));
-                        file.WriteLine();
-                    }
-                    if (verbose)
-                    {
-                        PrintResult(result4.Select(x => ((uint)x.Item1, (uint)x.Item2)).ToList());
-                    }
+                    result = McSplitApproximationEdge.Find(g1, g2, 4);
                     break;
                 default:
                     Console.WriteLine("Wrong algorithm number!");
-                    break;
+                    return;
+            }
+
+
+            if (results is null)
+            {
+                using (var file = new StreamWriter(outputFile))
+                {
+                    file.WriteLine(string.Join(",", result.Select(pair => pair.Item1)));
+                    file.WriteLine(string.Join(",", result.Select(pair => pair.Item2)));
+                    file.WriteLine();
+                }
+                if (!quiet)
+                {
+                    Console.WriteLine($"=== Common induced subgraph ===");
+                    PrintResult(result);
+                }
+            }
+            else
+            {
+                using (var file = new StreamWriter(outputFile))
+                {
+                    foreach (var r in results)
+                    {
+                        file.WriteLine(string.Join(",", r.Select(pair => pair.Item1)));
+                        file.WriteLine(string.Join(",", r.Select(pair => pair.Item2)));
+                        file.WriteLine();
+                    }
+                }
+                if (!quiet)
+                {
+                    for (int i = 0; i < results.Count; i++)
+                    {
+                        Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
+                        PrintResult(results[i]);
+                    }
+                }
             }
         }
 

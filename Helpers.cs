@@ -50,9 +50,9 @@ namespace Taio
         }
 
 
-        public static int SelectCommon(List<(int, int)> mapping, bool[,] g, bool[,] h)
+        public static uint SelectCommon(List<(uint, uint)> mapping, bool[,] g, bool[,] h)
         {
-            int mappingValue = 0;
+            uint mappingValue = 0;
             var sizeG = g.GetLength(0);
             var sizeH = h.GetLength(0);
 
@@ -71,15 +71,15 @@ namespace Taio
                     if (h[vertexH, i])
                         neighboursH++;
 
-                mappingValue += Math.Abs(neighboursG - neighboursH);
+                mappingValue += (uint)Math.Abs(neighboursG - neighboursH);
             }
 
             return mappingValue;
         }
 
-        public static int GetEdgeCount(List<(int, int)> mapping, bool[,] graphG)
+        public static uint GetEdgeCount(List<(uint, uint)> mapping, bool[,] graphG)
         {
-            int edgeCount = 0;
+            uint edgeCount = 0;
             for (int i = 0; i < mapping.Count; i++)
                 for (int j = i + 1; j < mapping.Count; j++)
                     if (graphG[mapping[i].Item1, mapping[j].Item1])

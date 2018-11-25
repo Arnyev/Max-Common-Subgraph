@@ -7,25 +7,25 @@ namespace Taio
     class McSplitApproximation
     {
         private static int ExpectedSize;
-        private static List<(int, int)> maxMapping;
-        private static List<(List<int>, List<int>)> bestFuture;
-        private static (List<int>, List<int>) bestFutureUnconnected;
-        private static int bestFutureWorth;
+        private static List<(uint, uint)> maxMapping;
+        private static List<(List<uint>, List<uint>)> bestFuture;
+        private static (List<uint>, List<uint>) bestFutureUnconnected;
+        private static uint bestFutureWorth;
         private static bool[,] _graphG;
         private static bool[,] _graphH;
 
-        public static List<(int, int)> Find(bool[,] graphG, bool[,] graphH, int stepSize)
+        public static List<(uint, uint)> Find(bool[,] graphG, bool[,] graphH, int stepSize)
         {
             var sizeG = graphG.GetLength(0);
             var sizeH = graphH.GetLength(0);
 
-            maxMapping = new List<(int, int)>();
-            bestFuture = new List<(List<int>, List<int>)>();
+            maxMapping = new List<(uint, uint)>();
+            bestFuture = new List<(List<uint>, List<uint>)>();
             bestFutureUnconnected =
-                    (Enumerable.Range(0, sizeG).ToList(),
-                     Enumerable.Range(0, sizeH).ToList());
+                    (Enumerable.Range(0, sizeG).Select(x => (uint)x).ToList(),
+                     Enumerable.Range(0, sizeH).Select(x => (uint)x).ToList());
 
-            bestFutureWorth = int.MaxValue;
+            bestFutureWorth = uint.MaxValue;
             _graphG = graphG;
             _graphH = graphH;
 
@@ -40,12 +40,12 @@ namespace Taio
             return maxMapping;
         }
 
-        private static void FindRecursive(List<(List<int>, List<int>)> classes, (List<int>, List<int>) unconnectedClass, List<(int, int)> mapping)
+        private static void FindRecursive(List<(List<uint>, List<uint>)> classes, (List<uint>, List<uint>) unconnectedClass, List<(uint, uint)> mapping)
         {
             var mappingValue = Helpers.SelectCommon(mapping, _graphG, _graphH);
             if (mapping.Count > maxMapping.Count || (mapping.Count == maxMapping.Count && mappingValue < bestFutureWorth))
             {
-                maxMapping = new List<(int, int)>(mapping);
+                maxMapping = new List<(uint, uint)>(mapping);
                 bestFutureWorth = mappingValue;
                 bestFuture = classes.ToList();
                 bestFutureUnconnected = (unconnectedClass.Item1.ToList(), unconnectedClass.Item2.ToList());
@@ -67,7 +67,7 @@ namespace Taio
 
             foreach (var w in h)
             {
-                var futurePrim = new List<(List<int>, List<int>)>();
+                var futurePrim = new List<(List<uint>, List<uint>)>();
                 foreach (var (gPrim, hPrim) in classes)
                     UpdateClasses(v, w, futurePrim, gPrim, hPrim);
 
@@ -93,14 +93,14 @@ namespace Taio
             FindRecursive(classes, unconnectedClass, mapping);
         }
 
-        private static void UpdateClassesUnconnected((List<int>, List<int>) unconnectedClass, int v, int w, List<(List<int>, List<int>)> futurePrim)
+        private static void UpdateClassesUnconnected((List<uint>, List<uint>) unconnectedClass, uint v, uint w, List<(List<uint>, List<uint>)> futurePrim)
         {
-            var gBisUn = new List<int>();
+            var gBisUn = new List<uint>();
             foreach (var vertexG in unconnectedClass.Item1)
                 if (_graphG[v, vertexG])
                     gBisUn.Add(vertexG);
 
-            var hBisUn = new List<int>();
+            var hBisUn = new List<uint>();
             foreach (var vertexh in unconnectedClass.Item2)
                 if (_graphH[w, vertexh])
                     hBisUn.Add(vertexh);
@@ -109,14 +109,14 @@ namespace Taio
                 futurePrim.Add((gBisUn, hBisUn));
         }
 
-        private static void UpdateClasses(int v, int w, List<(List<int>, List<int>)> futurePrim, List<int> gPrim, List<int> hPrim)
+        private static void UpdateClasses(uint v, uint w, List<(List<uint>, List<uint>)> futurePrim, List<uint> gPrim, List<uint> hPrim)
         {
-            var gBis = new List<int>();
+            var gBis = new List<uint>();
             foreach (var vertexG in gPrim)
                 if (_graphG[v, vertexG])
                     gBis.Add(vertexG);
 
-            var hBis = new List<int>();
+            var hBis = new List<uint>();
             foreach (var vertexh in hPrim)
                 if (_graphH[w, vertexh])
                     hBis.Add(vertexh);
@@ -124,11 +124,11 @@ namespace Taio
             if (gBis.Count() > 0 && hBis.Count() > 0)
                 futurePrim.Add((gBis, hBis));
 
-            gBis = new List<int>();
+            gBis = new List<uint>();
             foreach (var vertexG in gPrim)
                 if (!_graphG[v, vertexG] && v != vertexG)
                     gBis.Add(vertexG);
-            hBis = new List<int>();
+            hBis = new List<uint>();
             foreach (var vertexh in hPrim)
                 if (!_graphH[w, vertexh] && vertexh != w)
                     hBis.Add(vertexh);
@@ -137,9 +137,9 @@ namespace Taio
                 futurePrim.Add((gBis, hBis));
         }
 
-        private static (List<int>, List<int>) GetNewUnconnectedClass((List<int>, List<int>) unconnectedClass, int v, int w)
+        private static (List<uint>, List<uint>) GetNewUnconnectedClass((List<uint>, List<uint>) unconnectedClass, uint v, uint w)
         {
-            var newUnconnectedClass = (new List<int>(), new List<int>());
+            var newUnconnectedClass = (new List<uint>(), new List<uint>());
             foreach (var vertexG in unconnectedClass.Item1)
                 if (!_graphG[v, vertexG] && v != vertexG)
                     newUnconnectedClass.Item1.Add(vertexG);
