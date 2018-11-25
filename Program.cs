@@ -244,14 +244,68 @@ namespace Taio
                 var g2 = Generate(verticeCount2, density2);
 
                 var result1 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false).Solve()[0];
+                if (!TestResult(result1, g1, g2))
+                    throw new Exception();
                 var result2 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
+                if (!TestResult(result2, g1, g2))
+                    throw new Exception();
                 var result3 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve()[0];
+                if (!TestResult(result3, g1, g2))
+                    throw new Exception();
                 var result4 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve()[0];
+                if (!TestResult(result4, g1, g2))
+                    throw new Exception();
                 var resultUint = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                if (!TestResult(resultUint.Select(x => ((int)x.A, (int)x.B)).ToList(), g1, g2))
+                    throw new Exception();
                 var resultUint2 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                if (!TestResult(resultUint2.Select(x => ((int)x.A, (int)x.B)).ToList(), g1, g2))
+                    throw new Exception();
                 var result5 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                if (!TestResult(result5, g1, g2))
+                    throw new Exception();
                 var result6 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                if (!TestResult(result6, g1, g2))
+                    throw new Exception();
             }
+        }
+
+        private static bool TestResult(List<(int, int)> mapping, bool[,] g1, bool[,] g2)
+        {
+            foreach (var (v, w) in mapping)
+            {
+                foreach (var (v1, w1) in mapping)
+                {
+                    var r1 = g1[v, v1];
+                    var r2 = g2[w, w1];
+                    if (r1 != r2)
+                        return false;
+                }
+            }
+
+            Queue<int> q = new Queue<int>();
+            q.Enqueue(mapping[0].Item1);
+            bool[] connected = new bool[mapping.Count];
+            connected[0] = true;
+            while (q.Count != 0)
+            {
+                var v = q.Dequeue();
+                for (int i = 0; i < mapping.Count; i++)
+                {
+                    var w = mapping[i].Item1;
+                    if (!connected[i] && g1[v, w])
+                    {
+                        connected[i] = true;
+                        q.Enqueue(w);
+                    }
+                }
+            }
+
+            if (connected.Any(x => !x))
+                return false;
+            
+
+            return true;
         }
     }
 }
