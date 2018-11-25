@@ -10,6 +10,11 @@ namespace taio
             var G1 = new GraphModularVersion(graphA);
             var G2 = new GraphModularVersion(graphB);
 
+            if (G1.Size == 1 || G2.Size == 1)
+            {
+                return new List<(uint A, uint B)>( new[] { (A: (uint)0, B: (uint)0) } );
+            }
+
             var isomorphismSolver = new MaxClique(G1, G2);
             var G = isomorphismSolver.GetModularProduct();
 
