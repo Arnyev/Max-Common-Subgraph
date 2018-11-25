@@ -10,11 +10,11 @@ namespace taio
             var G1 = new GraphModularVersion(graphA);
             var G2 = new GraphModularVersion(graphB);
 
-            var isomorphismSolver = new MaxClique();
-            var G = isomorphismSolver.GetModularProduct(G1, G2);
+            var isomorphismSolver = new MaxClique(G1, G2);
+            var G = isomorphismSolver.GetModularProduct();
 
-            isomorphismSolver.MaxCliqueHeu(G, G1, G2, 1, edgeVersion);
-            var result = isomorphismSolver.DecomposeModularGraph(G1, G2, isomorphismSolver.CliqueVertices);
+            isomorphismSolver.MaxCliqueHeu(G, 1, edgeVersion);
+            var result = isomorphismSolver.DecomposeModularGraph(isomorphismSolver.CliqueVertices);
             var realResult = isomorphismSolver.GetMaximumConnectedGraph(G1, result);
 
             return realResult;
@@ -25,8 +25,16 @@ namespace taio
     {
         public int Value;
         public List<int> CliqueVertices;
+        private GraphModularVersion G1;
+        private GraphModularVersion G2;
 
-        public GraphModularVersion GetModularProduct(GraphModularVersion G1, GraphModularVersion G2)
+        public MaxClique(GraphModularVersion g1, GraphModularVersion g2)
+        {
+            G1 = g1;
+            G2 = g2;
+        }
+
+        public GraphModularVersion GetModularProduct()
         {
             var N = G1.Size;
             var M = G2.Size;
@@ -57,7 +65,7 @@ namespace taio
             return G;
         }
 
-        public List<(uint a, uint b)> DecomposeModularGraph(GraphModularVersion G1, GraphModularVersion G2, List<int> vertices)
+        public List<(uint a, uint b)> DecomposeModularGraph(List<int> vertices)
         {
             var N = G1.Size;
             var M = G2.Size;
@@ -75,8 +83,7 @@ namespace taio
             return result;
         }
 
-
-        public void MaxCliqueHeu(GraphModularVersion G, GraphModularVersion G1, GraphModularVersion G2, int lowerBound, bool edgeVersion)
+        public void MaxCliqueHeu(GraphModularVersion G, int lowerBound, bool edgeVersion)
         {
             var U = new List<int>();
             Value = lowerBound;
@@ -187,7 +194,7 @@ namespace taio
             }
 
             int max_deg = -1;
-            int vertex = edgeVersion ? SelectVertexVE(G1, G2, U, currentClique) : SelectVertex(G, U, ref max_deg);
+            int vertex = edgeVersion ? SelectVertexVE(U, currentClique) : SelectVertex(G, U, ref max_deg);
 
             U.Remove(vertex);
             currentClique.Add(vertex);
@@ -218,10 +225,10 @@ namespace taio
             return vertex;
         }
 
-        private int SelectVertexVE(GraphModularVersion G1, GraphModularVersion G2, List<int> verticesSelectable, List<int> verticesSelected)
+        private int SelectVertexVE(List<int> verticesSelectable, List<int> verticesSelected)
         {
-            var decomposedSelectable = DecomposeModularGraph(G1, G2, verticesSelectable);
-            var decomposedSelected = DecomposeModularGraph(G1, G2, verticesSelected);
+            var decomposedSelectable = DecomposeModularGraph(verticesSelectable);
+            var decomposedSelected = DecomposeModularGraph(verticesSelected);
             var bestValue = -1;
             var selectedVertice = -1;
             for (int i = 0; i < decomposedSelectable.Count; i++)
