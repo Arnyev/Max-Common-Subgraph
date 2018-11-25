@@ -11,6 +11,8 @@ namespace Taio
     {
         static void Main(string[] args)
         {
+            RunTests();
+
             var delimiter = ',';
             var algorithmVersionFlag = false;
             var algorithmNumber = 1;
@@ -83,11 +85,11 @@ namespace Taio
                 return;
             }
 
-            Graph graph1 = null, graph2 = null;
+            bool[,] graph1 = null, graph2 = null;
             try
             {
-                graph1 = DeserializeGraphFromCsv(graph1File, delimiter);
-                graph2 = DeserializeGraphFromCsv(graph2File, delimiter);
+                graph1 = DeserializeGraph(graph1File, delimiter);
+                graph2 = DeserializeGraph(graph2File, delimiter);
             }
             catch (FileNotFoundException e)
             {
@@ -95,45 +97,44 @@ namespace Taio
                 return;
             }
 
-            var g1 = DeserializeG(graph1File, delimiter);
-            var g2 = DeserializeG(graph2File, delimiter);
+            var g1 = DeserializeGraph(graph1File, delimiter);
+            var g2 = DeserializeGraph(graph2File, delimiter);
 
-            List<List<(uint, uint)>> results = null;
-            List<(uint, uint)> result = null;
-
+            List<List<(int, int)>> results = null;
+            List<(int, int)> result = null;
             switch (algorithmNumber)
             {
                 case 1:
                     PrintAlgorithmStart(algorithmNumber, "exact (V), first best result");
-                    result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: false, returnAll: false)[0];
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false).Solve()[0];
                     break;
                 case 2:
                     PrintAlgorithmStart(algorithmNumber, "exact (V+E), first best result");
-                    result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: true, returnAll: false)[0];
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
                     break;
                 case 3:
                     PrintAlgorithmStart(algorithmNumber, "exact (V), all maximum results");
-                    results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: false, returnAll: true);
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve()[0];
                     break;
                 case 4:
                     PrintAlgorithmStart(algorithmNumber, "exact (V+E), all maximum results");
-                    results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: true, returnAll: true);
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve()[0];
                     break;
                 case 5:
                     PrintAlgorithmStart(algorithmNumber, "approx. A (V)");
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                    var resultUint = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
                     break;
                 case 6:
                     PrintAlgorithmStart(algorithmNumber, "approx. A (V+E)");
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                    var resultUint2 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
                     break;
                 case 7:
                     PrintAlgorithmStart(algorithmNumber, "approx. B (V)");
-                    result = McSplitApproximation.Find(g1, g2, 4);
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
                     break;
                 case 8:
                     PrintAlgorithmStart(algorithmNumber, "approx. B (V+E)");
-                    result = McSplitApproximationEdge.Find(g1, g2, 4);
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
                     break;
                 default:
                     Console.WriteLine("Wrong algorithm number!");
@@ -184,43 +185,11 @@ namespace Taio
             Console.WriteLine($"\n### Starting algorithm {number} ({algorithm})...");
         }
 
-        static Graph DeserializeGraphFromCsv(string csvPath, char separator)
+        static bool[,] DeserializeGraph(string csvPath, char separator)
         {
             var file = File.ReadAllLines(csvPath);
 
-            var nodesNumber = (uint)file.Length;
-            var matrix = new bool[nodesNumber, nodesNumber];
-
-            for (int i = 0; i < nodesNumber; i++)
-            {
-                var row = file[i].Split(separator).Select(x => new string(x.Where(char.IsDigit).ToArray())).ToArray();
-                if (row.Length != nodesNumber)
-                {
-                    throw new ArgumentException("Provided adjacency matrix is not a square matrix!");
-                }
-
-                for (int j = 0; j < nodesNumber; j++)
-                {
-                    if (row[j] != "1" && row[j] != "0")
-                        throw new Exception();
-
-                    matrix[i, j] = row[j] == "1";
-                }
-            }
-
-            for (int i = 0; i < nodesNumber; i++)
-                for (int j = 0; j < nodesNumber; j++)
-                    if (matrix[i, j] != matrix[j, i])
-                        throw new Exception();
-
-            return new Graph(nodesNumber, matrix);
-        }
-
-        static bool[,] DeserializeG(string csvPath, char separator)
-        {
-            var file = File.ReadAllLines(csvPath);
-
-            var nodesNumber = (uint)file.Length;
+            var nodesNumber = (int)file.Length;
             var matrix = new bool[nodesNumber, nodesNumber];
 
             for (int i = 0; i < nodesNumber; i++)
@@ -240,7 +209,7 @@ namespace Taio
             return matrix;
         }
 
-        private static Graph Generate(int nodesNumber, double density)
+        private static bool[,] Generate(int nodesNumber, double density)
         {
             var matrix = new bool[nodesNumber, nodesNumber];
             var rand = new Random();
@@ -248,10 +217,10 @@ namespace Taio
                 for (int j = i + 1; j < nodesNumber; j++)
                     matrix[i, j] = matrix[j, i] = rand.NextDouble() < density;
 
-            return new Graph((uint)nodesNumber, matrix);
+            return matrix;
         }
 
-        static void PrintResult(List<(uint, uint)> result)
+        static void PrintResult(List<(int, int)> result)
         {
             Console.WriteLine("G      H");
             Console.WriteLine("--------");
@@ -260,6 +229,29 @@ namespace Taio
                 Console.WriteLine($"{mapping.Item1 + 1} <==> {mapping.Item2 + 1}");
             }
             Console.WriteLine();
+        }
+
+        private static void RunTests()
+        {
+            var rand = new Random();
+            for (int i = 0; i < 100; i++)
+            {
+                var verticeCount = rand.Next(1, 25);
+                var density = rand.NextDouble() / 2;
+                var g1 = Generate(verticeCount, density);
+                var verticeCount2 = rand.Next(1, 25);
+                var density2 = rand.NextDouble() / 2;
+                var g2 = Generate(verticeCount2, density2);
+
+                var result1 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false).Solve()[0];
+                var result2 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
+                var result3 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve()[0];
+                var result4 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve()[0];
+                var resultUint = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                var resultUint2 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                var result5 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                var result6 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+            }
         }
     }
 }

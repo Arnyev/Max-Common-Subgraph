@@ -6,11 +6,8 @@ namespace Taio
 {
     class Helpers
     {
-        public static bool IsClassConnected(
-            (IEnumerable<uint> gPart, IEnumerable<uint> hPart) vertexClass,
-            List<(uint v, uint w)> mapping,
-            Graph gGraph,
-            Graph hGraph)
+        public static bool IsClassConnected((List<int> gPart, List<int> hPart) vertexClass,
+        List<(int v, int w)> mapping, bool[,] gGraph, bool[,] hGraph)
         {
             if (mapping.Count == 0)
             {
@@ -45,14 +42,15 @@ namespace Taio
                 // All considered, to check if a class is connected we have to find a single pair
                 // from the mapping that is adjacent to any vertex from the class.
                 // We arbitrary choose the first vertex from `gPart` for comparison. 
-                return mapping.Any(pair => gGraph.AreAdjacent(pair.v, vertexClass.gPart.First()));
+                var vertexFromClass = vertexClass.gPart[0];
+                return mapping.Any(pair => gGraph[vertexFromClass, pair.v]);
             }
         }
 
 
-        public static uint SelectCommon(List<(uint, uint)> mapping, bool[,] g, bool[,] h)
+        public static int SelectCommon(List<(int, int)> mapping, bool[,] g, bool[,] h)
         {
-            uint mappingValue = 0;
+            int mappingValue = 0;
             var sizeG = g.GetLength(0);
             var sizeH = h.GetLength(0);
 
@@ -71,15 +69,15 @@ namespace Taio
                     if (h[vertexH, i])
                         neighboursH++;
 
-                mappingValue += (uint)Math.Abs(neighboursG - neighboursH);
+                mappingValue += (int)Math.Abs(neighboursG - neighboursH);
             }
 
             return mappingValue;
         }
 
-        public static uint GetEdgeCount(List<(uint, uint)> mapping, bool[,] graphG)
+        public static int GetEdgeCount(List<(int, int)> mapping, bool[,] graphG)
         {
-            uint edgeCount = 0;
+            int edgeCount = 0;
             for (int i = 0; i < mapping.Count; i++)
                 for (int j = i + 1; j < mapping.Count; j++)
                     if (graphG[mapping[i].Item1, mapping[j].Item1])

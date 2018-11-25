@@ -126,7 +126,7 @@ namespace taio
                 isomorphism[tup.a] = tup.b;
             }
 
-            List<int> max = null;
+            List<int> max = new List<int>();
             int maxCount = 0;
             foreach (var g in graphsList)
             {

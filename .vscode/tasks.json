@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/taio.csproj"
+                "${workspaceFolder}/MaxCommonSubgraph.csproj"
             ],
             "problemMatcher": "$msCompile"
         },
@@ -17,7 +17,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/taio.csproj",
+                "${workspaceFolder}/MaxCommonSubgraph.csproj",
                 "-c",
                 "Release"
             ],
