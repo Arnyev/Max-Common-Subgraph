@@ -24,12 +24,14 @@ namespace Taio
             {
                 Console.WriteLine(usageMessage);
                 Console.WriteLine("You can choose one of 6 algorithms:");
-                Console.WriteLine("       1 - exact (maximizing V), default");
-                Console.WriteLine("       2 - exact (maximizing V+E)");
-                Console.WriteLine("       3 - approximating algorithm A (V)");
-                Console.WriteLine("       4 - approximating algorithm A (V+E)");
-                Console.WriteLine("       5 - approximating algorithm B (V)");
-                Console.WriteLine("       6 - approximating algorithm B (V+E)");
+                Console.WriteLine("       1 - exact (V), default");
+                Console.WriteLine("       2 - exact (V+E)");
+                Console.WriteLine("       3 - exact (V) returning all maximum results");
+                Console.WriteLine("       4 - exact (V+E) returning all maximum results");
+                Console.WriteLine("       5 - approximating algorithm A (V)");
+                Console.WriteLine("       6 - approximating algorithm A (V+E)");
+                Console.WriteLine("       7 - approximating algorithm B (V)");
+                Console.WriteLine("       8 - approximating algorithm B (V+E)");
                 return;
             }
 
@@ -99,25 +101,30 @@ namespace Taio
             List<List<(uint, uint)>> results = null;
             List<(uint, uint)> result = null;
 
-            var edgeVersion = true;
             switch (algorithmNumber)
             {
                 case 1:
-                    edgeVersion = false;
-                    goto case 2;
+                    result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: false, returnAll: false)[0];
+                    break;
                 case 2:
-                    results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion);
+                    result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: true, returnAll: false)[0];
                     break;
                 case 3:
-                    edgeVersion = false;
-                    goto case 4;
+                    results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: false, returnAll: true);
+                    break;
                 case 4:
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion);
+                    results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: true, returnAll: true);
                     break;
                 case 5:
-                    result = McSplitApproximation.Find(g1, g2, 4);
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
                     break;
                 case 6:
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                    break;
+                case 7:
+                    result = McSplitApproximation.Find(g1, g2, 4);
+                    break;
+                case 8:
                     result = McSplitApproximationEdge.Find(g1, g2, 4);
                     break;
                 default:

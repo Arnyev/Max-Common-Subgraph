@@ -8,7 +8,7 @@ namespace Taio
 {
     class McSplitAlgorithm
     {
-        static public List<List<(uint, uint)>> McSplit(Graph graphG, Graph graphH, bool edgeVersion)
+        static public List<List<(uint, uint)>> McSplit(Graph graphG, Graph graphH, bool edgeVersion, bool returnAll)
         {
             var maxMappingSize = -1;
             var maxMappings = new List<List<(uint, uint)>>();
@@ -61,7 +61,14 @@ namespace Taio
                 }
 
                 var maximumPossible = mapping.Count + future.Sum(lists => Min(lists.Item1.Count, lists.Item2.Count));
-                if (maximumPossible < maxMappingSize) return;
+                if (returnAll)
+                {
+                    if (maximumPossible < maxMappingSize) return;
+                }
+                else
+                {
+                    if (maximumPossible <= maxMappingSize) return;
+                }
 
                 var (g, h) = future.FirstOrDefault(f => Helpers.IsClassConnected(f, mapping, graphG, graphH));
                 if (g == null) return;
@@ -99,17 +106,33 @@ namespace Taio
 
             void McSplitRecursiveEdgesVersion(List<(List<uint>, List<uint>)> future, List<(uint, uint)> mapping, int edgesCount)
             {
-                if (mapping.Count + edgesCount > maxMappingSize + maxEdgesCount)
+                var currentMetric = mapping.Count + edgesCount;
+                var maxMetric = maxMappingSize + maxEdgesCount;
+
+                if (currentMetric > maxMetric)
                 {
                     maxMappings.Clear();
                     maxMappings.Add(mapping);
                     maxMappingSize = mapping.Count;
                     maxEdgesCount = edgesCount;
                 }
-                else if (mapping.Count + edgesCount == maxMappingSize + maxEdgesCount)
+                else if (currentMetric == maxMetric)
                 {
                     maxMappings.Add(mapping);
                 }
+
+                var possibleVerticesToAdd = future.Sum(lists => Min(lists.Item1.Count, lists.Item2.Count));
+                int possibleEdgesToAdd = Enumerable.Range(mapping.Count, possibleVerticesToAdd).Sum();
+                var possibleMetric = currentMetric + possibleVerticesToAdd + possibleEdgesToAdd;
+                if (returnAll)
+                {
+                    if (possibleMetric < maxMetric) return;
+                }
+                else
+                {
+                    if (possibleMetric <= maxMetric) return;
+                }
+
 
                 var (g, h) = future.FirstOrDefault(f => Helpers.IsClassConnected(f, mapping, graphG, graphH));
                 if (g == null) return;
