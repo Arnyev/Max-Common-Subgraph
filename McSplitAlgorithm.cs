@@ -15,7 +15,6 @@ namespace Taio
             var maxEdgesCount = -1;
             if (edgeVersion)
             {
-                Console.WriteLine("Starting edge version of McSplit algorithm");
                 McSplitRecursiveEdgesVersion(
                                 new List<(List<uint>, List<uint>)>()
                                     {
@@ -31,7 +30,6 @@ namespace Taio
             }
             else
             {
-                Console.WriteLine("Starting standard version of McSplit algorithm");
                 McSplitRecursive(
                                 new List<(List<uint>, List<uint>)>()
                                     {

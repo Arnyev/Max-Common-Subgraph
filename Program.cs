@@ -104,34 +104,41 @@ namespace Taio
             switch (algorithmNumber)
             {
                 case 1:
+                    PrintAlgorithmStart(algorithmNumber, "exact (V), first best result");
                     result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: false, returnAll: false)[0];
                     break;
                 case 2:
+                    PrintAlgorithmStart(algorithmNumber, "exact (V+E), first best result");
                     result = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: true, returnAll: false)[0];
                     break;
                 case 3:
+                    PrintAlgorithmStart(algorithmNumber, "exact (V), all maximum results");
                     results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: false, returnAll: true);
                     break;
                 case 4:
+                    PrintAlgorithmStart(algorithmNumber, "exact (V+E), all maximum results");
                     results = McSplitAlgorithm.McSplit(graph1, graph2, edgeVersion: true, returnAll: true);
                     break;
                 case 5:
+                    PrintAlgorithmStart(algorithmNumber, "approx. A (V)");
                     result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
                     break;
                 case 6:
+                    PrintAlgorithmStart(algorithmNumber, "approx. A (V+E)");
                     result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
                     break;
                 case 7:
+                    PrintAlgorithmStart(algorithmNumber, "approx. B (V)");
                     result = McSplitApproximation.Find(g1, g2, 4);
                     break;
                 case 8:
+                    PrintAlgorithmStart(algorithmNumber, "approx. B (V+E)");
                     result = McSplitApproximationEdge.Find(g1, g2, 4);
                     break;
                 default:
                     Console.WriteLine("Wrong algorithm number!");
                     return;
             }
-
 
             if (results is null)
             {
@@ -143,7 +150,9 @@ namespace Taio
                 }
                 if (!quiet)
                 {
-                    Console.WriteLine($"=== Common induced subgraph ===");
+                    Console.WriteLine("\n### Result below:\n");
+                    var prefix = algorithmNumber > 4 ? "Common" : "Maximum common";
+                    Console.WriteLine($"=== {prefix} induced subgraph ===");
                     PrintResult(result);
                 }
             }
@@ -160,6 +169,7 @@ namespace Taio
                 }
                 if (!quiet)
                 {
+                    Console.WriteLine("\n### Results below:\n");
                     for (int i = 0; i < results.Count; i++)
                     {
                         Console.WriteLine($"=== Maximum common induced subgraph no. {i + 1} ===");
@@ -167,6 +177,11 @@ namespace Taio
                     }
                 }
             }
+        }
+
+        private static void PrintAlgorithmStart(int number, string algorithm)
+        {
+            Console.WriteLine($"\n### Starting algorithm {number} ({algorithm})...");
         }
 
         static Graph DeserializeGraphFromCsv(string csvPath, char separator)
@@ -245,35 +260,6 @@ namespace Taio
                 Console.WriteLine($"{mapping.Item1 + 1} <==> {mapping.Item2 + 1}");
             }
             Console.WriteLine();
-        }
-
-        public static void SaveIsomorphismListToCsv(IList<(int a, int b)> list)
-        {
-            string filePath = @"..\..\..\Isomorphism.csv";
-            string delimiter = ",";
-            var N = list.Count;
-
-            StringBuilder sb1 = new StringBuilder();
-            StringBuilder sb2 = new StringBuilder();
-
-            for (int i = 0; i < N; i++)
-            {
-                sb1.Append(list[i].a);
-                sb2.Append(list[i].b);
-                if (i == N - 1)
-                {
-                    sb1.Append("\r\n");
-                    sb2.Append("\r\n");
-                }
-                else
-                {
-                    sb1.Append(delimiter);
-                    sb2.Append(delimiter);
-                }
-            }
-
-            File.WriteAllText(filePath, sb1.ToString());
-            File.AppendAllText(filePath, sb2.ToString());
         }
     }
 }
