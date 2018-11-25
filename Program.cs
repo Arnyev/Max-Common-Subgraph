@@ -18,10 +18,11 @@ namespace Taio
             var outputFile = "result.csv";
             string graph1File = null;
             string graph2File = null;
+            var usageMessage = "usage: MaxCommonSubgraph.exe input1 input2 [--delimiter char] [--algo alg_number] [--output filename] [--verbose]";
 
             if (args.Length < 2)
             {
-                Console.WriteLine("usage: dotnet run input1 input2 [--delimiter c] [--algo alg_number] [--output filename] [--verbose]");
+                Console.WriteLine(usageMessage);
                 Console.WriteLine("You can choose one of 6 algorithms:");
                 Console.WriteLine("       1 - exact (maximizing V), default");
                 Console.WriteLine("       2 - exact (maximizing V+E)");
@@ -76,7 +77,7 @@ namespace Taio
             }
             if (graph1File == null || graph2File == null)
             {
-                Console.WriteLine("usage: solver <input_file_1> <input_file_2> [--delimiter <char>] [--edgeVersion] ");
+                Console.WriteLine(usageMessage);
                 return;
             }
 
@@ -172,7 +173,7 @@ namespace Taio
                 var row = file[i].Split(separator).Select(x => new string(x.Where(char.IsDigit).ToArray())).ToArray();
                 if (row.Length != nodesNumber)
                 {
-                    throw new ArgumentException("Macierz sąsiedztwa nie jest kwadratowa!");
+                    throw new ArgumentException("Provided adjacency matrix is not a square matrix!");
                 }
 
                 for (int j = 0; j < nodesNumber; j++)
@@ -204,7 +205,7 @@ namespace Taio
                 var row = file[i].Split(separator);
                 if (row.Length != nodesNumber)
                 {
-                    throw new ArgumentException("Macierz sąsiedztwa nie jest kwadratowa!");
+                    throw new ArgumentException("Provided adjacency matrix is not a square matrix!");
                 }
 
                 for (int j = 0; j < nodesNumber; j++)
