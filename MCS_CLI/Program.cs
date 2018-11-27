@@ -202,7 +202,7 @@ namespace Taio
 
                 for (int j = 0; j < nodesNumber; j++)
                 {
-                    matrix[i, j] = row[j] == "1";
+                    matrix[i, j] = row[j].Trim() == "1";
                 }
             }
 
