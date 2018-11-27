@@ -158,11 +158,11 @@ namespace tmp_app
         private void CheckedChangedGeneral(object sender, EventArgs e)
         {
             if (this.radioButton1.Checked) algorithmNumber = 1;
-            else if (this.radioButton1.Checked) algorithmNumber = 2;
-            else if (this.radioButton1.Checked) algorithmNumber = 5;
-            else if (this.radioButton1.Checked) algorithmNumber = 6;
-            else if (this.radioButton1.Checked) algorithmNumber = 7;
-            else if (this.radioButton1.Checked) algorithmNumber = 8;
+            else if (this.radioButton2.Checked) algorithmNumber = 2;
+            else if (this.radioButton3.Checked) algorithmNumber = 5;
+            else if (this.radioButton4.Checked) algorithmNumber = 6;
+            else if (this.radioButton5.Checked) algorithmNumber = 7;
+            else if (this.radioButton6.Checked) algorithmNumber = 8;
         }
 
         private void LogError(string text)
