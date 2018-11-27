@@ -67,7 +67,14 @@ namespace tmp_app
             }
 
             this.result = result;
+            int resultSize = results?[0].Count() ?? result.Count();
             LogInfo("Done");
+            LogInfo("Size of graph 1:");
+            LogInfo("  " + this.arrayGraphA.GetLength(0).ToString());
+            LogInfo("Size of graph 2:");
+            LogInfo("  " + this.arrayGraphB.GetLength(0).ToString());
+            LogInfo($"Vertices found:");
+            LogInfo("  " + resultSize.ToString());
 
             foreach (var pair in this.result)
             {
