@@ -55,16 +55,16 @@ namespace tmp_app
                     results = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve();
                     break;
                 case 5:
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
-                    break;
-                case 6:
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
-                    break;
-                case 7:
                     result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
                     break;
-                case 8:
+                case 6:
                     result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                    break;
+                case 7:
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                    break;
+                case 8:
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
                     break;
                 default:
                     LogError("Wrong algorithm number!");
@@ -72,7 +72,13 @@ namespace tmp_app
             }
 
             this.result = result;
+            var size = result.Count;
+            var edgeCount = Helpers.GetEdgeCount(result, g1);
+            var density = edgeCount / (size * (size - 1.0) / 2);
             LogInfo("Done");
+            LogInfo($"Mapping size (V): {size}");
+            LogInfo($"Mapping size (V + E): {size+edgeCount}");
+            LogInfo($"Mapping density: {density:N2}");
 
             foreach (var pair in this.result)
             {
