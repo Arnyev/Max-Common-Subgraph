@@ -11,7 +11,8 @@ namespace tmp_app
         private int algorithmNumber;
         public bool[,] arrayGraphA;
         public bool[,] arrayGraphB;
-        public List<(int, int)> isomorphism; 
+        public List<(int, int)> result;
+        List<List<(int, int)>> results;
 
         public Form1()
         {
@@ -31,6 +32,7 @@ namespace tmp_app
 
             List<List<(int, int)>> results = null;
             List<(int, int)> result = null;
+
             switch (algorithmNumber)
             {
                 case 1:
@@ -40,10 +42,10 @@ namespace tmp_app
                     result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
                     break;
                 case 3:
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve()[0];
+                    results = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve();
                     break;
                 case 4:
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve()[0];
+                    results = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve();
                     break;
                 case 5:
                     result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
@@ -62,10 +64,10 @@ namespace tmp_app
                     return;
             }
 
-            this.isomorphism = result;
+            this.result = result;
             LogInfo("Done");
 
-            foreach (var pair in isomorphism)
+            foreach (var pair in this.result)
             {
                 var color = GetRandomColor();
                 var node = viewerA.Graph.FindNode(pair.Item1.ToString());
@@ -165,6 +167,12 @@ namespace tmp_app
             this.outputInfo.SelectionColor = Color.Black;
             outputInfo.AppendText(text + Environment.NewLine);
             outputInfo.SelectionColor = outputInfo.ForeColor;
+        }
+
+        // Export to csv
+        private void button4_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
