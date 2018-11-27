@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,8 @@ namespace Taio
     {
         static void Main(string[] args)
         {
-            RunTests();
+            RunTimeTest();
+            // RunTests();
 
             var delimiter = ',';
             var algorithmVersionFlag = false;
@@ -24,16 +26,7 @@ namespace Taio
 
             if (args.Length < 2)
             {
-                Console.WriteLine(usageMessage);
-                Console.WriteLine("You can choose one of 6 algorithms:");
-                Console.WriteLine("       1 - exact (V), default");
-                Console.WriteLine("       2 - exact (V+E)");
-                Console.WriteLine("       3 - exact (V) returning all maximum results");
-                Console.WriteLine("       4 - exact (V+E) returning all maximum results");
-                Console.WriteLine("       5 - approximating algorithm A (V)");
-                Console.WriteLine("       6 - approximating algorithm A (V+E)");
-                Console.WriteLine("       7 - approximating algorithm B (V)");
-                Console.WriteLine("       8 - approximating algorithm B (V+E)");
+                PrintUsage(usageMessage);
                 return;
             }
 
@@ -97,44 +90,41 @@ namespace Taio
                 return;
             }
 
-            var g1 = DeserializeGraph(graph1File, delimiter);
-            var g2 = DeserializeGraph(graph2File, delimiter);
-
             List<List<(int, int)>> results = null;
             List<(int, int)> result = null;
             switch (algorithmNumber)
             {
                 case 1:
                     PrintAlgorithmStart(algorithmNumber, "exact (V), first best result");
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false).Solve()[0];
+                    result = new McSplitAlgorithmSolver(graph1, graph2, edgeVersion: false, returnAll: false).Solve()[0];
                     break;
                 case 2:
                     PrintAlgorithmStart(algorithmNumber, "exact (V+E), first best result");
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
+                    result = new McSplitAlgorithmSolver(graph1, graph2, edgeVersion: true, returnAll: false).Solve()[0];
                     break;
                 case 3:
                     PrintAlgorithmStart(algorithmNumber, "exact (V), all maximum results");
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve()[0];
+                    results = new McSplitAlgorithmSolver(graph1, graph2, edgeVersion: false, returnAll: true).Solve();
                     break;
                 case 4:
                     PrintAlgorithmStart(algorithmNumber, "exact (V+E), all maximum results");
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve()[0];
+                    results = new McSplitAlgorithmSolver(graph1, graph2, edgeVersion: true, returnAll: true).Solve();
                     break;
                 case 5:
                     PrintAlgorithmStart(algorithmNumber, "approx. A (V)");
-                    var resultUint = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(graph1, graph2, edgeVersion: false);
                     break;
                 case 6:
                     PrintAlgorithmStart(algorithmNumber, "approx. A (V+E)");
-                    var resultUint2 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(graph1, graph2, edgeVersion: true);
                     break;
                 case 7:
                     PrintAlgorithmStart(algorithmNumber, "approx. B (V)");
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                    result = new McSplitAlgorithmSolver(graph1, graph2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
                     break;
                 case 8:
                     PrintAlgorithmStart(algorithmNumber, "approx. B (V+E)");
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                    result = new McSplitAlgorithmSolver(graph1, graph2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
                     break;
                 default:
                     Console.WriteLine("Wrong algorithm number!");
@@ -178,6 +168,20 @@ namespace Taio
                     }
                 }
             }
+        }
+
+        private static void PrintUsage(string usageMessage)
+        {
+            Console.WriteLine(usageMessage);
+            Console.WriteLine("You can choose one of 6 algorithms:");
+            Console.WriteLine("       1 - exact (V), default");
+            Console.WriteLine("       2 - exact (V+E)");
+            Console.WriteLine("       3 - exact (V) returning all maximum results");
+            Console.WriteLine("       4 - exact (V+E) returning all maximum results");
+            Console.WriteLine("       5 - approximating algorithm A (V)");
+            Console.WriteLine("       6 - approximating algorithm A (V+E)");
+            Console.WriteLine("       7 - approximating algorithm B (V)");
+            Console.WriteLine("       8 - approximating algorithm B (V+E)");
         }
 
         private static void PrintAlgorithmStart(int number, string algorithm)
@@ -231,6 +235,92 @@ namespace Taio
             Console.WriteLine();
         }
 
+        private static void RunTimeTest()
+        {
+            var rand = new Random();
+            StringBuilder stringBuilder = new StringBuilder();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            List<(int, int)> result;
+            int vertCount1, vertCount2, vertCount3, vertCount4, vertCount5, vertCount6;
+            int edgeCount1, edgeCount2, edgeCount3, edgeCount4, edgeCount5, edgeCount6;
+            long time1, time2, time3, time4, time5, time6;
+            string s;
+
+            stringBuilder.Append("Graph 1 vertice count \t Graph 2 vertice count \t approximate density \t");
+            stringBuilder.Append("exact v vertCount \t exact v edgeCount \t Exact v time \t");
+            stringBuilder.Append("exact v+e vertCount \t exact v + e edgecount \t Exact v + e time \t");
+            stringBuilder.Append("apprClique v vertCount \t apprClique v edgeCount \t apprClique v time \t");
+            stringBuilder.Append("apprClique v + e vertCount \t apprClique v + e edgeCount \t apprClique v + e time \t");
+            stringBuilder.Append("appr v vertCount \t appr v edgeCount \t appr v time \t");
+            stringBuilder.Append("appr v + e vertCount \t appr v + e edgeCount \t appr v + e time \t");
+            stringBuilder.AppendLine();
+
+            var density = 0.5;
+            for (int verticeCount = 12; verticeCount < 32; verticeCount++)
+            {
+                time1 = time2 = time3 = time4 = time5 = time6 = vertCount1 = vertCount2 = vertCount3 = vertCount4 = vertCount5 = vertCount6 = edgeCount1 = edgeCount2 = edgeCount3 = edgeCount4 = edgeCount5 = edgeCount6 = 0;
+                s = verticeCount + "\t" + verticeCount + '\t' + density + '\t';
+                stringBuilder.Append(s);
+
+                for (int iz = 0; iz < 15; iz++)
+                {
+                    var g1 = Generate(verticeCount, density);
+                    var g2 = Generate(verticeCount, density);
+
+                    if (verticeCount < 20)
+                    {
+                        sw.Restart();
+                        result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false).Solve()[0];
+                        vertCount1 += result.Count;
+                        time1 += sw.ElapsedMilliseconds;
+                        edgeCount1 += Helpers.GetEdgeCount(result, g1);
+
+                        sw.Restart();
+                        result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
+                        time2 += sw.ElapsedMilliseconds;
+                        edgeCount2 += Helpers.GetEdgeCount(result, g1);
+                        vertCount2 += result.Count;
+                    }
+
+                    sw.Restart();
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                    time3 += sw.ElapsedMilliseconds;
+                    edgeCount3 += Helpers.GetEdgeCount(result, g1);
+                    vertCount3 += result.Count;
+
+                    sw.Restart();
+                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                    time4 += sw.ElapsedMilliseconds;
+                    edgeCount4 += Helpers.GetEdgeCount(result, g1);
+                    vertCount4 += result.Count;
+
+                    sw.Restart();
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
+                    time5 += sw.ElapsedMilliseconds;
+                    edgeCount5 += Helpers.GetEdgeCount(result, g1);
+                    vertCount5 += result.Count;
+
+                    sw.Restart();
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
+                    time6 += sw.ElapsedMilliseconds;
+                    edgeCount6 += Helpers.GetEdgeCount(result, g1);
+                    vertCount6 += result.Count;
+                }
+
+                time1 /= 15; time2 /= 15; time3 /= 15; time4 /= 15; time5 /= 15; time6 /= 15; vertCount1 /= 15; vertCount2 /= 15; vertCount3 /= 15; vertCount4 /= 15; vertCount5 /= 15; vertCount6 /= 15; edgeCount1 /= 15; edgeCount2 /= 15; edgeCount3 /= 15; edgeCount4 /= 15; edgeCount5 /= 15; edgeCount6 /= 15;
+                stringBuilder.Append(vertCount1 + "\t" + edgeCount1 + '\t' + time1 + '\t');
+                stringBuilder.Append(vertCount2 + "\t" + edgeCount2 + '\t' + time2 + '\t');
+                stringBuilder.Append(vertCount3 + "\t" + edgeCount3 + '\t' + time3 + '\t');
+                stringBuilder.Append(vertCount4 + "\t" + edgeCount4 + '\t' + time4 + '\t');
+                stringBuilder.Append(vertCount5 + "\t" + edgeCount5 + '\t' + time5 + '\t');
+                stringBuilder.Append(vertCount6 + "\t" + edgeCount6 + '\t' + time6 + '\t');
+                stringBuilder.AppendLine();
+            }
+
+            File.WriteAllText("resultTime.csv", stringBuilder.ToString());
+        }
+
         private static void RunTests()
         {
             var rand = new Random();
@@ -249,23 +339,17 @@ namespace Taio
                 var result2 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
                 if (!TestResult(result2, g1, g2))
                     throw new Exception();
-                var result3 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve()[0];
-                if (!TestResult(result3, g1, g2))
-                    throw new Exception();
-                var result4 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve()[0];
-                if (!TestResult(result4, g1, g2))
-                    throw new Exception();
-                var resultUint = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
-                if (!TestResult(resultUint.Select(x => ((int)x.A, (int)x.B)).ToList(), g1, g2))
-                    throw new Exception();
-                var resultUint2 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
-                if (!TestResult(resultUint2.Select(x => ((int)x.A, (int)x.B)).ToList(), g1, g2))
-                    throw new Exception();
-                var result5 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                var result5 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
                 if (!TestResult(result5, g1, g2))
                     throw new Exception();
-                var result6 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                var result6 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
                 if (!TestResult(result6, g1, g2))
+                    throw new Exception();
+                var result7 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                if (!TestResult(result7, g1, g2))
+                    throw new Exception();
+                var result8 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
+                if (!TestResult(result8, g1, g2))
                     throw new Exception();
             }
         }
@@ -303,7 +387,7 @@ namespace Taio
 
             if (connected.Any(x => !x))
                 return false;
-            
+
 
             return true;
         }

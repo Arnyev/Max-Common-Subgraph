@@ -5,14 +5,14 @@ namespace taio
 {
     public class MaxInducedSubgraphCliqueApproximation
     {
-        public List<(uint A, uint B)> FindCommonSubgraph(bool[,] graphA, bool[,] graphB, bool edgeVersion = false)
+        public List<(int A, int B)> FindCommonSubgraph(bool[,] graphA, bool[,] graphB, bool edgeVersion = false)
         {
             var G1 = new GraphModularVersion(graphA);
             var G2 = new GraphModularVersion(graphB);
 
             if (G1.Size == 1 || G2.Size == 1)
             {
-                return new List<(uint A, uint B)>( new[] { (A: (uint)0, B: (uint)0) } );
+                return new List<(int A, int B)>( new[] { (A: 0, B: 0) } );
             }
 
             var isomorphismSolver = new MaxClique(G1, G2);
@@ -70,18 +70,18 @@ namespace taio
             return G;
         }
 
-        public List<(uint a, uint b)> DecomposeModularGraph(List<int> vertices)
+        public List<(int a, int b)> DecomposeModularGraph(List<int> vertices)
         {
             var N = G1.Size;
             var M = G2.Size;
             var newSize = M * N;
             var newTab = new bool[newSize, newSize];
 
-            var result = new List<(uint a, uint b)>();
+            var result = new List<(int a, int b)>();
             foreach (var v in vertices)
             {
-                var _a = (uint)(v / M);
-                var _b = (uint)(v % M);
+                var _a = v / M;
+                var _b = v % M;
                 result.Add((a: _a, b: _b));
             }
 
@@ -116,16 +116,16 @@ namespace taio
             }
         }
 
-        public List<(uint a, uint b)> GetMaximumConnectedGraph(GraphModularVersion G, List<(uint a, uint b)> vertices)
+        public List<(int a, int b)> GetMaximumConnectedGraph(GraphModularVersion G, List<(int a, int b)> vertices)
         {
             var tmpList = new List<int>();
             foreach (var v in vertices)
             {
-                tmpList.Add((int)v.a);
+                tmpList.Add(v.a);
             }
 
             var graphsList = FindAllConnectedSubgraphs(G, tmpList);
-            var isomorphism = new Dictionary<uint, uint>();
+            var isomorphism = new Dictionary<int, int>();
             foreach (var tup in vertices)
             {
                 isomorphism[tup.a] = tup.b;
@@ -142,10 +142,10 @@ namespace taio
                 }
             }
 
-            var result = new List<(uint A, uint B)>();
+            var result = new List<(int A, int B)>();
             foreach (var v in max)
             {
-                result.Add(((uint)v, isomorphism[(uint)v]));
+                result.Add((v, isomorphism[v]));
             }
 
             return result;

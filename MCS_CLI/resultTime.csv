@@ -1,0 +1,21 @@
+Graph 1 vertice count 	 Graph 2 vertice count 	 approximate density 	exact v vertCount 	 exact v edgeCount 	 Exact v time 	exact v+e vertCount 	 exact v + e edgecount 	 Exact v + e time 	apprClique v vertCount 	 apprClique v edgeCount 	 apprClique v time 	apprClique v + e vertCount 	 apprClique v + e edgeCount 	 apprClique v + e time 	appr v vertCount 	 appr v edgeCount 	 appr v time 	appr v + e vertCount 	 appr v + e edgeCount 	 appr v + e time 	
+12	12	0.5	8	15	3	8	17	20	7	12	3	7	13	4	5	5	1	5	6	1	
+13	13	0.5	8	17	3	8	19	37	8	14	4	8	15	6	5	7	2	5	7	1	
+14	14	0.5	9	18	10	8	20	95	8	15	6	8	15	10	6	8	3	6	8	2	
+15	15	0.5	9	20	21	9	23	177	8	18	9	8	16	13	6	8	5	5	9	4	
+16	16	0.5	9	20	45	9	24	406	8	17	12	8	18	19	6	9	6	6	8	5	
+17	17	0.5	10	23	110	10	26	824	9	20	16	9	20	27	6	10	9	6	10	7	
+18	18	0.5	0	0	0	0	0	0	9	20	21	9	23	38	7	11	12	6	9	9	
+19	19	0.5	0	0	0	0	0	0	9	22	29	9	24	50	6	11	15	6	10	12	
+20	20	0.5	0	0	0	0	0	0	10	22	37	10	25	65	6	10	19	6	9	15	
+21	21	0.5	0	0	0	0	0	0	10	22	47	10	26	80	7	10	25	7	11	20	
+22	22	0.5	0	0	0	0	0	0	10	26	59	10	27	108	7	12	31	7	11	25	
+23	23	0.5	0	0	0	0	0	0	10	24	74	10	27	136	7	11	38	6	10	30	
+24	24	0.5	0	0	0	0	0	0	10	28	90	11	31	172	7	11	48	7	12	38	
+25	25	0.5	0	0	0	0	0	0	11	27	114	10	30	215	7	12	58	7	12	46	
+26	26	0.5	0	0	0	0	0	0	11	28	138	11	32	256	7	11	72	7	13	56	
+27	27	0.5	0	0	0	0	0	0	11	28	167	11	30	291	7	15	83	7	13	65	
+28	28	0.5	0	0	0	0	0	0	11	34	196	11	33	609	7	13	100	7	12	78	
+29	29	0.5	0	0	0	0	0	0	11	33	238	11	35	642	8	17	119	7	13	93	
+30	30	0.5	0	0	0	0	0	0	12	33	280	11	35	513	7	14	140	7	14	110	
+31	31	0.5	0	0	0	0	0	0	12	33	335	11	34	1013	7	13	165	8	13	129	
