@@ -47,23 +47,17 @@ namespace tmp_app
                 case 2:
                     result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
                     break;
-                case 3:
-                    results = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: true).Solve();
-                    break;
-                case 4:
-                    results = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: true).Solve();
-                    break;
                 case 5:
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
-                    break;
-                case 6:
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
-                    break;
-                case 7:
                     result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
                     break;
-                case 8:
+                case 6:
                     result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                    break;
+                case 7:
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
+                    break;
+                case 8:
+                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
                     break;
                 default:
                     LogError("Wrong algorithm number!");
@@ -132,7 +126,7 @@ namespace tmp_app
             else
                 return Color.FromArgb(255, v, p, q);
         }
-        
+
         // Load the first Graph
         private void button1_Click(object sender, EventArgs e)
         {
@@ -225,12 +219,13 @@ namespace tmp_app
             {
                 var a = Path.GetFileNameWithoutExtension(this.textBox1.Text);
                 var b = Path.GetFileNameWithoutExtension(this.textBox2.Text);
-                var outputFileName = "Result_" + a + "_" + b + ".csv";
-                var outputFile = @"..\..\" + outputFileName;
+
+                if (saveFileDialog1.ShowDialog() != DialogResult.OK) return;
+
 
                 if (this.result != null)
                 {
-                    using (var file = new StreamWriter(outputFile))
+                    using (var file = new StreamWriter(saveFileDialog1.FileName))
                     {
                         file.WriteLine(string.Join(",", result.Select(pair => pair.Item1)));
                         file.WriteLine(string.Join(",", result.Select(pair => pair.Item2)));
@@ -239,7 +234,7 @@ namespace tmp_app
                 }
                 else if (this.results != null)
                 {
-                    using (var file = new StreamWriter(outputFile))
+                    using (var file = new StreamWriter(saveFileDialog1.FileName))
                     {
                         foreach (var r in results)
                         {
@@ -260,7 +255,7 @@ namespace tmp_app
             {
                 LogError("Cannot convert to csv");
             }
-            
+
         }
 
         // Abort handler

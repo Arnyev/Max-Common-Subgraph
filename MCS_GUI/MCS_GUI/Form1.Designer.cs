@@ -32,6 +32,9 @@
             Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation planeTransformation1 = new Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation();
             Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation planeTransformation2 = new Microsoft.Msagl.Core.Geometry.Curves.PlaneTransformation();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.viewerB = new Microsoft.Msagl.GraphViewerGdi.GViewer();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.radioButton6 = new System.Windows.Forms.RadioButton();
@@ -46,105 +49,19 @@
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.viewerA = new Microsoft.Msagl.GraphViewerGdi.GViewer();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.tableLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel5.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
-            this.tableLayoutPanel5.SuspendLayout();
-            this.viewerA = new Microsoft.Msagl.GraphViewerGdi.GViewer();
-            this.viewerB = new Microsoft.Msagl.GraphViewerGdi.GViewer();
             this.SuspendLayout();
-            //
-            // viewerA
-            // 
-            this.viewerA.ArrowheadLength = 10D;
-            this.viewerA.AsyncLayout = false;
-            this.viewerA.AutoScroll = true;
-            this.viewerA.BackwardEnabled = false;
-            this.viewerA.BuildHitTree = true;
-            this.viewerA.CurrentLayoutMethod = Microsoft.Msagl.GraphViewerGdi.LayoutMethod.UseSettingsOfTheGraph;
-            this.viewerA.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.viewerA.EdgeInsertButtonVisible = true;
-            this.viewerA.FileName = "";
-            this.viewerA.ForwardEnabled = false;
-            this.viewerA.Graph = null;
-            this.viewerA.InsertingEdge = false;
-            this.viewerA.LayoutAlgorithmSettingsButtonVisible = true;
-            this.viewerA.LayoutEditingEnabled = true;
-            this.viewerA.Location = new System.Drawing.Point(3, 3);
-            this.viewerA.LooseOffsetForRouting = 0.25D;
-            this.viewerA.MouseHitDistance = 0.05D;
-            this.viewerA.Name = "viewerA";
-            this.viewerA.NavigationVisible = true;
-            this.viewerA.NeedToCalculateLayout = true;
-            this.viewerA.OffsetForRelaxingInRouting = 0.6D;
-            this.viewerA.PaddingForEdgeRouting = 8D;
-            this.viewerA.PanButtonPressed = false;
-            this.viewerA.SaveAsImageEnabled = true;
-            this.viewerA.SaveAsMsaglEnabled = true;
-            this.viewerA.SaveButtonVisible = true;
-            this.viewerA.SaveGraphButtonVisible = true;
-            this.viewerA.SaveInVectorFormatEnabled = true;
-            this.viewerA.Size = new System.Drawing.Size(319, 444);
-            this.viewerA.TabIndex = 1;
-            this.viewerA.TightOffsetForRouting = 0.125D;
-            this.viewerA.ToolBarIsVisible = false;
-            this.viewerA.Transform = planeTransformation1;
-            this.viewerA.UndoRedoButtonsVisible = true;
-            this.viewerA.WindowZoomButtonPressed = false;
-            this.viewerA.ZoomF = 1D;
-            this.viewerA.ZoomWindowThreshold = 0.05D;
-            // 
-            // viewerB
-            // 
-            this.viewerB.ArrowheadLength = 10D;
-            this.viewerB.AsyncLayout = false;
-            this.viewerB.AutoScroll = true;
-            this.viewerB.BackwardEnabled = false;
-            this.viewerB.BuildHitTree = true;
-            this.viewerB.CurrentLayoutMethod = Microsoft.Msagl.GraphViewerGdi.LayoutMethod.UseSettingsOfTheGraph;
-            this.viewerB.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.viewerB.EdgeInsertButtonVisible = true;
-            this.viewerB.FileName = "";
-            this.viewerB.ForwardEnabled = false;
-            this.viewerB.Graph = null;
-            this.viewerB.InsertingEdge = false;
-            this.viewerB.LayoutAlgorithmSettingsButtonVisible = true;
-            this.viewerB.LayoutEditingEnabled = true;
-            this.viewerB.Location = new System.Drawing.Point(328, 3);
-            this.viewerB.LooseOffsetForRouting = 0.25D;
-            this.viewerB.MouseHitDistance = 0.05D;
-            this.viewerB.Name = "viewerB";
-            this.viewerB.NavigationVisible = true;
-            this.viewerB.NeedToCalculateLayout = true;
-            this.viewerB.OffsetForRelaxingInRouting = 0.6D;
-            this.viewerB.PaddingForEdgeRouting = 8D;
-            this.viewerB.PanButtonPressed = false;
-            this.viewerB.SaveAsImageEnabled = true;
-            this.viewerB.SaveAsMsaglEnabled = true;
-            this.viewerB.SaveButtonVisible = true;
-            this.viewerB.SaveGraphButtonVisible = true;
-            this.viewerB.SaveInVectorFormatEnabled = true;
-            this.viewerB.Size = new System.Drawing.Size(319, 444);
-            this.viewerB.TabIndex = 2;
-            this.viewerB.TightOffsetForRouting = 0.125D;
-            this.viewerB.ToolBarIsVisible = false;
-            this.viewerB.Transform = planeTransformation2;
-            this.viewerB.UndoRedoButtonsVisible = true;
-            this.viewerB.WindowZoomButtonPressed = false;
-            this.viewerB.ZoomF = 1D;
-            this.viewerB.ZoomWindowThreshold = 0.05D;
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // tableLayoutPanel1
             // 
@@ -163,6 +80,71 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(809, 450);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
+            // tableLayoutPanel5
+            // 
+            this.tableLayoutPanel5.BackColor = System.Drawing.SystemColors.Window;
+            this.tableLayoutPanel5.ColumnCount = 1;
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel5.Controls.Add(this.textBox2, 0, 0);
+            this.tableLayoutPanel5.Controls.Add(this.viewerB, 0, 1);
+            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(332, 3);
+            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
+            this.tableLayoutPanel5.RowCount = 2;
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(323, 444);
+            this.tableLayoutPanel5.TabIndex = 2;
+            // 
+            // textBox2
+            // 
+            this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox2.Location = new System.Drawing.Point(3, 3);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(317, 13);
+            this.textBox2.TabIndex = 0;
+            // 
+            // viewerB
+            // 
+            this.viewerB.ArrowheadLength = 10D;
+            this.viewerB.AsyncLayout = false;
+            this.viewerB.AutoScroll = true;
+            this.viewerB.BackwardEnabled = false;
+            this.viewerB.BuildHitTree = true;
+            this.viewerB.CurrentLayoutMethod = Microsoft.Msagl.GraphViewerGdi.LayoutMethod.UseSettingsOfTheGraph;
+            this.viewerB.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.viewerB.EdgeInsertButtonVisible = true;
+            this.viewerB.FileName = "";
+            this.viewerB.ForwardEnabled = false;
+            this.viewerB.Graph = null;
+            this.viewerB.InsertingEdge = false;
+            this.viewerB.LayoutAlgorithmSettingsButtonVisible = true;
+            this.viewerB.LayoutEditingEnabled = true;
+            this.viewerB.Location = new System.Drawing.Point(3, 22);
+            this.viewerB.LooseOffsetForRouting = 0.25D;
+            this.viewerB.MouseHitDistance = 0.05D;
+            this.viewerB.Name = "viewerB";
+            this.viewerB.NavigationVisible = true;
+            this.viewerB.NeedToCalculateLayout = true;
+            this.viewerB.OffsetForRelaxingInRouting = 0.6D;
+            this.viewerB.PaddingForEdgeRouting = 8D;
+            this.viewerB.PanButtonPressed = false;
+            this.viewerB.SaveAsImageEnabled = true;
+            this.viewerB.SaveAsMsaglEnabled = true;
+            this.viewerB.SaveButtonVisible = true;
+            this.viewerB.SaveGraphButtonVisible = true;
+            this.viewerB.SaveInVectorFormatEnabled = true;
+            this.viewerB.Size = new System.Drawing.Size(317, 419);
+            this.viewerB.TabIndex = 2;
+            this.viewerB.TightOffsetForRouting = 0.125D;
+            this.viewerB.ToolBarIsVisible = false;
+            this.viewerB.Transform = planeTransformation1;
+            this.viewerB.UndoRedoButtonsVisible = true;
+            this.viewerB.WindowZoomButtonPressed = false;
+            this.viewerB.ZoomF = 1D;
+            this.viewerB.ZoomWindowThreshold = 0.05D;
+            // 
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 1;
@@ -180,7 +162,8 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(145, 444);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
@@ -297,7 +280,7 @@
             this.outputInfo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.outputInfo.Location = new System.Drawing.Point(3, 266);
             this.outputInfo.Name = "outputInfo";
-            this.outputInfo.Size = new System.Drawing.Size(139, 151);
+            this.outputInfo.Size = new System.Drawing.Size(139, 155);
             this.outputInfo.TabIndex = 4;
             this.outputInfo.Text = "";
             // 
@@ -336,11 +319,6 @@
             this.button4.Text = "Export";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
-            
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // tableLayoutPanel3
             // 
@@ -348,6 +326,7 @@
             this.tableLayoutPanel3.ColumnCount = 1;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.Controls.Add(this.textBox1, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.viewerA, 0, 1);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -356,7 +335,6 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(323, 444);
             this.tableLayoutPanel3.TabIndex = 1;
-            this.tableLayoutPanel3.Controls.Add(this.viewerA, 0, 1);
             // 
             // textBox1
             // 
@@ -367,30 +345,49 @@
             this.textBox1.Size = new System.Drawing.Size(317, 13);
             this.textBox1.TabIndex = 0;
             // 
-            // tableLayoutPanel5
+            // viewerA
             // 
-            this.tableLayoutPanel5.BackColor = System.Drawing.SystemColors.Window;
-            this.tableLayoutPanel5.ColumnCount = 1;
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Controls.Add(this.textBox2, 0, 0);
-            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(332, 3);
-            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
-            this.tableLayoutPanel5.RowCount = 2;
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(323, 444);
-            this.tableLayoutPanel5.TabIndex = 2;
-            this.tableLayoutPanel5.Controls.Add(this.viewerB, 0, 1);
+            this.viewerA.ArrowheadLength = 10D;
+            this.viewerA.AsyncLayout = false;
+            this.viewerA.AutoScroll = true;
+            this.viewerA.BackwardEnabled = false;
+            this.viewerA.BuildHitTree = true;
+            this.viewerA.CurrentLayoutMethod = Microsoft.Msagl.GraphViewerGdi.LayoutMethod.UseSettingsOfTheGraph;
+            this.viewerA.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.viewerA.EdgeInsertButtonVisible = true;
+            this.viewerA.FileName = "";
+            this.viewerA.ForwardEnabled = false;
+            this.viewerA.Graph = null;
+            this.viewerA.InsertingEdge = false;
+            this.viewerA.LayoutAlgorithmSettingsButtonVisible = true;
+            this.viewerA.LayoutEditingEnabled = true;
+            this.viewerA.Location = new System.Drawing.Point(3, 22);
+            this.viewerA.LooseOffsetForRouting = 0.25D;
+            this.viewerA.MouseHitDistance = 0.05D;
+            this.viewerA.Name = "viewerA";
+            this.viewerA.NavigationVisible = true;
+            this.viewerA.NeedToCalculateLayout = true;
+            this.viewerA.OffsetForRelaxingInRouting = 0.6D;
+            this.viewerA.PaddingForEdgeRouting = 8D;
+            this.viewerA.PanButtonPressed = false;
+            this.viewerA.SaveAsImageEnabled = true;
+            this.viewerA.SaveAsMsaglEnabled = true;
+            this.viewerA.SaveButtonVisible = true;
+            this.viewerA.SaveGraphButtonVisible = true;
+            this.viewerA.SaveInVectorFormatEnabled = true;
+            this.viewerA.Size = new System.Drawing.Size(317, 419);
+            this.viewerA.TabIndex = 1;
+            this.viewerA.TightOffsetForRouting = 0.125D;
+            this.viewerA.ToolBarIsVisible = false;
+            this.viewerA.Transform = planeTransformation2;
+            this.viewerA.UndoRedoButtonsVisible = true;
+            this.viewerA.WindowZoomButtonPressed = false;
+            this.viewerA.ZoomF = 1D;
+            this.viewerA.ZoomWindowThreshold = 0.05D;
             // 
-            // textBox2
+            // openFileDialog1
             // 
-            this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox2.Location = new System.Drawing.Point(3, 3);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(317, 13);
-            this.textBox2.TabIndex = 0;
+            this.openFileDialog1.FileName = "openFileDialog1";
             // 
             // Form1
             // 
@@ -401,14 +398,14 @@
             this.Name = "Form1";
             this.Text = "TAiO";
             this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel5.ResumeLayout(false);
+            this.tableLayoutPanel5.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
-            this.tableLayoutPanel5.ResumeLayout(false);
-            this.tableLayoutPanel5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -438,6 +435,7 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
     }
 }
 
