@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Taio;
+using System.IO;
+using System.Linq;
 
 namespace tmp_app
 {
@@ -90,11 +92,13 @@ namespace tmp_app
             Color sysColor = Color.FromKnownColor(allColors[rand.Next() % allColors.Length]);
             return new Microsoft.Msagl.Drawing.Color(sysColor.R, sysColor.G, sysColor.B);
         }
-
+        
+        // Load the first Graph
         private void button1_Click(object sender, EventArgs e)
         {
-            if (openFileDialogAndInitializeGraph(ref arrayGraphA))
+            if (openFileDialogAndInitializeGraph(ref arrayGraphA, out string filename))
             {
+                this.textBox1.Text = filename;
                 Microsoft.Msagl.Drawing.Graph graphA;
                 GuiHelpers.CreateGraphFromArray(out graphA, arrayGraphA, "GraphA");
                 viewerA.Graph = graphA;
@@ -105,10 +109,12 @@ namespace tmp_app
 
         }
 
+        // Load the second Graph
         private void button2_Click(object sender, EventArgs e)
         {
-            if (openFileDialogAndInitializeGraph(ref arrayGraphB))
+            if (openFileDialogAndInitializeGraph(ref arrayGraphB, out string filename))
             {
+                this.textBox2.Text = filename;
                 Microsoft.Msagl.Drawing.Graph graphB;
                 GuiHelpers.CreateGraphFromArray(out graphB, arrayGraphB, "GraphB");
                 viewerB.Graph = graphB;
@@ -118,24 +124,27 @@ namespace tmp_app
             else button2.BackColor = Color.Red;
         }
 
-        private bool openFileDialogAndInitializeGraph(ref bool[,] graph)
+        private bool openFileDialogAndInitializeGraph(ref bool[,] graph, out string filename)
         {
             if (openFileDialog1.ShowDialog() != System.Windows.Forms.DialogResult.OK)
             {
+                filename = "";
                 return false;
             }
             if (!openFileDialog1.CheckFileExists)
             {
+                filename = "";
                 LogError("Such file doesn't exit");
                 return false;
             }
             if (!openFileDialog1.FileName.EndsWith(".csv"))
             {
+                filename = "";
                 LogError("Wrong file extension");
                 return false;
             }
 
-            graph = GuiHelpers.DeserializeG(openFileDialog1.FileName);
+            graph = GuiHelpers.DeserializeG(filename = openFileDialog1.FileName);
             return true;
         }
 
@@ -172,7 +181,46 @@ namespace tmp_app
         // Export to csv handler
         private void button4_Click(object sender, EventArgs e)
         {
+            try
+            {
+                var a = Path.GetFileNameWithoutExtension(this.textBox1.Text);
+                var b = Path.GetFileNameWithoutExtension(this.textBox2.Text);
+                var outputFileName = "Result_" + a + "_" + b + ".csv";
+                var outputFile = @"..\..\" + outputFileName;
 
+                if (this.result != null)
+                {
+                    using (var file = new StreamWriter(outputFile))
+                    {
+                        file.WriteLine(string.Join(",", result.Select(pair => pair.Item1)));
+                        file.WriteLine(string.Join(",", result.Select(pair => pair.Item2)));
+                        file.WriteLine();
+                    }
+                }
+                else if (this.results != null)
+                {
+                    using (var file = new StreamWriter(outputFile))
+                    {
+                        foreach (var r in results)
+                        {
+                            file.WriteLine(string.Join(",", r.Select(pair => pair.Item1)));
+                            file.WriteLine(string.Join(",", r.Select(pair => pair.Item2)));
+                            file.WriteLine();
+                        }
+                    }
+                }
+                else
+                {
+                    LogError("Run algorithm first");
+                    return;
+                }
+                LogInfo("Exported to csv");
+            }
+            catch (Exception ee)
+            {
+                LogError("Cannot convert to csv");
+            }
+            
         }
 
         // Abort handler
