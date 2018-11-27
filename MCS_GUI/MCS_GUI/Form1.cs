@@ -169,10 +169,16 @@ namespace tmp_app
             outputInfo.SelectionColor = outputInfo.ForeColor;
         }
 
-        // Export to csv
+        // Export to csv handler
         private void button4_Click(object sender, EventArgs e)
         {
 
+        }
+
+        // Abort handler
+        private void button5_Click(object sender, EventArgs e)
+        {
+            LogInfo("Computation aborted");
         }
     }
 }
