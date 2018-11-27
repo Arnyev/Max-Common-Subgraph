@@ -46,7 +46,6 @@
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -173,7 +172,6 @@
             this.tableLayoutPanel2.Controls.Add(this.button2, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.outputInfo, 0, 4);
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel4, 0, 3);
-            this.tableLayoutPanel2.Controls.Add(this.button5, 0, 5);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Right;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(661, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -182,8 +180,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(145, 444);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
@@ -339,18 +336,7 @@
             this.button4.Text = "Export";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button5
-            // 
-            this.button5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button5.Location = new System.Drawing.Point(3, 423);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(139, 24);
-            this.button5.TabIndex = 6;
-            this.button5.Text = "Abort";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            
             // 
             // openFileDialog1
             // 
@@ -448,7 +434,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
