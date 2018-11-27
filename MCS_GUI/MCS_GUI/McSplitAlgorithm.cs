@@ -203,7 +203,7 @@ namespace Taio
 
         private bool UpdateMappingCheckFinishedApproximationEdge(List<(List<int>, List<int>)> future, List<(int, int)> mapping)
         {
-            var mappingValue = Helpers.SelectCommon(mapping, graphG, graphH);
+            var mappingValue = Helpers.GetEdgeCount(mapping, graphG);
             if (mapping.Count > maxMappingSize || (mapping.Count == maxMappingSize && mappingValue < bestFutureWorth))
             {
                 maxMappings.Clear();
@@ -213,7 +213,7 @@ namespace Taio
                 bestFuture = future.ToList();
             }
 
-            var metric = Helpers.GetEdgeCount(mapping, graphG) + mapping.Count;
+            var metric = mappingValue + mapping.Count;
             if (metric > bestMetric)
             {
                 bestMetric = metric;
