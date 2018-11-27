@@ -11,8 +11,11 @@ namespace tmp_app
         private int algorithmNumber;
         public bool[,] arrayGraphA;
         public bool[,] arrayGraphB;
+
         public List<(int, int)> result;
         List<List<(int, int)>> results;
+
+        public List<(int, int)> isomorphism;
 
         public Form1()
         {
@@ -29,6 +32,10 @@ namespace tmp_app
                 LogError("Graph is null");
                 return;
             }
+            foreach (var node in viewerA.Graph.Nodes)
+                node.Attr.FillColor = Microsoft.Msagl.Drawing.Color.White;
+            foreach (var node in viewerB.Graph.Nodes)
+                node.Attr.FillColor = Microsoft.Msagl.Drawing.Color.White;
 
             List<List<(int, int)>> results = null;
             List<(int, int)> result = null;
@@ -80,15 +87,39 @@ namespace tmp_app
             viewerB.Refresh();
         }
 
-        Random rand = new Random();
+        double lastHue = 0;
         private Microsoft.Msagl.Drawing.Color GetRandomColor()
         {
-            System.Array colorsArray = Enum.GetValues(typeof(KnownColor));
-            KnownColor[] allColors = new KnownColor[colorsArray.Length];
-            Array.Copy(colorsArray, allColors, colorsArray.Length);
+            lastHue += 0.618033988749895;
+            if (lastHue > 1) { lastHue -= 1; }
+            var hueAsDegree = lastHue * 360;
+            var color = ColorFromHSV(hueAsDegree, 0.5, 0.95);
+            return new Microsoft.Msagl.Drawing.Color(color.R, color.G, color.B);
+        }
 
-            Color sysColor = Color.FromKnownColor(allColors[rand.Next() % allColors.Length]);
-            return new Microsoft.Msagl.Drawing.Color(sysColor.R, sysColor.G, sysColor.B);
+        public static Color ColorFromHSV(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            if (hi == 0)
+                return Color.FromArgb(255, v, t, p);
+            else if (hi == 1)
+                return Color.FromArgb(255, q, v, p);
+            else if (hi == 2)
+                return Color.FromArgb(255, p, v, t);
+            else if (hi == 3)
+                return Color.FromArgb(255, p, q, v);
+            else if (hi == 4)
+                return Color.FromArgb(255, t, p, v);
+            else
+                return Color.FromArgb(255, v, p, q);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -98,7 +129,7 @@ namespace tmp_app
                 Microsoft.Msagl.Drawing.Graph graphA;
                 GuiHelpers.CreateGraphFromArray(out graphA, arrayGraphA, "GraphA");
                 viewerA.Graph = graphA;
-                
+
                 button1.BackColor = Color.LightGreen;
             }
             else button1.BackColor = Color.Red;
@@ -142,11 +173,11 @@ namespace tmp_app
         private void CheckedChangedGeneral(object sender, EventArgs e)
         {
             if (this.radioButton1.Checked) algorithmNumber = 1;
-            else if (this.radioButton1.Checked) algorithmNumber = 2;
-            else if (this.radioButton1.Checked) algorithmNumber = 5;
-            else if (this.radioButton1.Checked) algorithmNumber = 6;
-            else if (this.radioButton1.Checked) algorithmNumber = 7;
-            else if (this.radioButton1.Checked) algorithmNumber = 8;
+            else if (this.radioButton2.Checked) algorithmNumber = 2;
+            else if (this.radioButton3.Checked) algorithmNumber = 5;
+            else if (this.radioButton4.Checked) algorithmNumber = 6;
+            else if (this.radioButton5.Checked) algorithmNumber = 7;
+            else if (this.radioButton6.Checked) algorithmNumber = 8;
         }
 
         private void LogError(string text)
