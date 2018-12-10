@@ -1,167 +1,136 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace taio
+namespace Taio
 {
-    public class MaxInducedSubgraphCliqueApproximation
+    public class CliqueSolver
     {
-        public List<(int A, int B)> FindCommonSubgraph(bool[,] graphA, bool[,] graphB, bool edgeVersion = false)
-        {
-            var G1 = new GraphModularVersion(graphA);
-            var G2 = new GraphModularVersion(graphB);
+        private readonly bool[,] graphA;
+        private readonly bool[,] graphB;
+        private readonly bool edgeVersion;
+        private readonly bool[,] modularGraph;
+        private readonly int[] neighbourCounts;
+        private readonly List<int> maxClique = new List<int>();
 
-            if (G1.Size == 1 || G2.Size == 1)
+        public CliqueSolver(bool[,] graphA, bool[,] graphB, bool edgeVersion = false)
+        {
+            this.graphA = graphA;
+            this.graphB = graphB;
+            this.edgeVersion = edgeVersion;
+            modularGraph = GetModularProduct(graphA, graphB);
+            neighbourCounts = CreateNeighbourCounts(modularGraph);
+        }
+
+        public List<(int, int)> Solve()
+        {
+            if (graphA.GetLength(1) == 1 || graphB.GetLength(1) == 1)
+                return new List<(int, int)>(new[] { (0, 0) });
+
+            for (int i = 0; i < modularGraph.GetLength(0); i++)
+                if (neighbourCounts[i] >= maxClique.Count - 1)
+                    FindCliqueWithVertex(i);
+
+            var graphBSize = graphB.GetLength(0);
+            var decomposed = maxClique.Select(v => (v / graphBSize, v % graphBSize)).ToList();
+            return GetMaximumConnectedGraph(graphA, decomposed);
+        }
+
+        private void FindCliqueWithVertex(int i)
+        {
+            List<int> clique = new List<int> { i };
+            var remaining = new List<int>();
+
+            for (int j = 0; j < modularGraph.GetLength(0); j++)
+                if (modularGraph[i, j] && neighbourCounts[j] >= maxClique.Count)
+                    remaining.Add(j);
+
+            while (remaining.Count > maxClique.Count - clique.Count && remaining.Count > 0)
             {
-                return new List<(int A, int B)>( new[] { (A: 0, B: 0) } );
+                int vertex = edgeVersion ? SelectVertexVE(remaining, clique) : SelectVertex(remaining);
+
+                remaining.Remove(vertex);
+                clique.Add(vertex);
+
+                var newRemaining = new List<int>();
+                foreach (var remainingVertex in remaining)
+                    if (modularGraph[vertex, remainingVertex] &&
+                        neighbourCounts[remainingVertex] >= maxClique.Count)
+                        newRemaining.Add(remainingVertex);
+
+                remaining = newRemaining;
             }
 
-            var isomorphismSolver = new MaxClique(G1, G2);
-            var G = isomorphismSolver.GetModularProduct();
-
-            isomorphismSolver.MaxCliqueHeu(G, 1, edgeVersion);
-            var result = isomorphismSolver.DecomposeModularGraph(isomorphismSolver.CliqueVertices);
-            var realResult = isomorphismSolver.GetMaximumConnectedGraph(G1, result);
-
-            return realResult;
-        }
-    }
-
-    public class MaxClique
-    {
-        public int Value;
-        public List<int> CliqueVertices;
-        private GraphModularVersion G1;
-        private GraphModularVersion G2;
-
-        public MaxClique(GraphModularVersion g1, GraphModularVersion g2)
-        {
-            G1 = g1;
-            G2 = g2;
-        }
-
-        public GraphModularVersion GetModularProduct()
-        {
-            var N = G1.Size;
-            var M = G2.Size;
-            var newSize = M * N;
-            var newTab = new bool[newSize, newSize];
-
-            for (int x = 0; x < newSize; x++)
+            if (clique.Count > maxClique.Count)
             {
-                for (int y = 0; y < newSize; y++)
-                {
-                    if (x == y) continue;
-                    int v1 = x / M;
-                    int w1 = y / M;
-                    int v2 = x % M;
-                    int w2 = y % M;
-                    if (v1 == w1 || v2 == w2) continue;
+                maxClique.Clear();
+                maxClique.AddRange(clique);
+            }
+        }
 
-                    if (G1.isEdgeBetween(v1, w1) && G2.isEdgeBetween(v2, w2) ||
-                        !G1.isEdgeBetween(v1, w1) && !G2.isEdgeBetween(v2, w2))
-                    {
-                        newTab[x, y] = newTab[y, x] = true;
-                    }
+        private int SelectVertex(List<int> verticesSelectable)
+        {
+            var best = -1;
+            var bestNeighbours = -1;
+            foreach (var vertex in verticesSelectable)
+                if (neighbourCounts[vertex] >= bestNeighbours)
+                {
+                    best = vertex;
+                    bestNeighbours = neighbourCounts[vertex];
+                }
+
+            return best;
+        }
+
+        private int SelectVertexVE(List<int> verticesSelectable, List<int> verticesSelected)
+        {
+            var graphBSize = graphB.GetLength(0);
+            var bestValue = -1;
+            var selectedVertice = -1;
+
+            var verticesSelectedinA = new List<int>();
+            foreach (var vertex in verticesSelected)
+                verticesSelectedinA.Add(vertex / graphBSize);
+
+            for (int i = 0; i < verticesSelectable.Count; i++)
+            {
+                var selectable = verticesSelectable[i] / graphBSize;
+                var value = 0;
+                foreach (var selected in verticesSelectedinA)
+                    if (graphA[selectable, selected])
+                        value++;
+
+                if (value > bestValue)
+                {
+                    bestValue = value;
+                    selectedVertice = verticesSelectable[i];
                 }
             }
-
-            var G = new GraphModularVersion(newTab);
-            G.size2 = M;
-            return G;
+            return selectedVertice;
         }
 
-        public List<(int a, int b)> DecomposeModularGraph(List<int> vertices)
+        private static List<(int, int)> GetMaximumConnectedGraph(bool[,] G, List<(int, int)> vertices)
         {
-            var N = G1.Size;
-            var M = G2.Size;
-            var newSize = M * N;
-            var newTab = new bool[newSize, newSize];
+            var graphsList = FindAllConnectedSubgraphs(G, vertices);
 
-            var result = new List<(int a, int b)>();
-            foreach (var v in vertices)
-            {
-                var _a = v / M;
-                var _b = v % M;
-                result.Add((a: _a, b: _b));
-            }
+            var max = new List<(int, int)>();
+            foreach (var graph in graphsList)
+                if (graph.Count > max.Count)
+                    max = graph;
 
-            return result;
+            return max;
         }
 
-        public void MaxCliqueHeu(GraphModularVersion G, int lowerBound, bool edgeVersion)
-        {
-            var U = new List<int>();
-            Value = lowerBound;
-            CliqueVertices = new List<int>();
-            List<int> currentClique = new List<int>();
-
-            for (int i = 0; i < G.Size; i++)
-            {
-                if (G.Degree(i) >= Value)
-                {
-                    currentClique.Add(i);
-                    U = new List<int>();
-                    var neighbours = G.GetEdges(i);
-                    for (int j = 0; j < neighbours.Count; j++)
-                    {
-                        var v_j = neighbours[j];
-                        if (G.Degree(v_j) >= Value)
-                        {
-                            U.Add(v_j);
-                        }
-                    }
-                    CliqueHeu(G, G1, G2, U, 1, currentClique, edgeVersion);
-                    currentClique.Remove(i);
-                }
-            }
-        }
-
-        public List<(int a, int b)> GetMaximumConnectedGraph(GraphModularVersion G, List<(int a, int b)> vertices)
-        {
-            var tmpList = new List<int>();
-            foreach (var v in vertices)
-            {
-                tmpList.Add(v.a);
-            }
-
-            var graphsList = FindAllConnectedSubgraphs(G, tmpList);
-            var isomorphism = new Dictionary<int, int>();
-            foreach (var tup in vertices)
-            {
-                isomorphism[tup.a] = tup.b;
-            }
-
-            List<int> max = new List<int>();
-            int maxCount = 0;
-            foreach (var g in graphsList)
-            {
-                if (g.Count > maxCount)
-                {
-                    maxCount = g.Count;
-                    max = g;
-                }
-            }
-
-            var result = new List<(int A, int B)>();
-            foreach (var v in max)
-            {
-                result.Add((v, isomorphism[v]));
-            }
-
-            return result;
-        }
-
-        private List<List<int>> FindAllConnectedSubgraphs(GraphModularVersion G, List<int> vertices)
+        private static List<List<(int, int)>> FindAllConnectedSubgraphs(bool[,] graph, List<(int, int)> vertices)
         {
             var visited = new bool[vertices.Count];
-            var queue = new Queue<int>();
+            var queue = new Queue<(int, int)>();
 
-            var result = new List<List<int>>();
+            var result = new List<List<(int, int)>>();
             for (int i = 0; i < vertices.Count; i++)
             {
                 if (!visited[i])
                 {
-                    var list = new List<int>();
+                    var list = new List<(int, int)>();
                     list.Add(vertices[i]);
                     queue.Enqueue(vertices[i]);
                     visited[i] = true;
@@ -171,7 +140,7 @@ namespace taio
                         var vertex = queue.Dequeue();
 
                         for (int j = 0; j < vertices.Count; j++)
-                            if (!visited[j] && G.vertices[vertex, vertices[j]])
+                            if (!visited[j] && graph[vertex.Item1, vertices[j].Item1])
                             {
                                 queue.Enqueue(vertices[j]);
                                 visited[j] = true;
@@ -185,71 +154,46 @@ namespace taio
             return result;
         }
 
-        private void CliqueHeu(GraphModularVersion G, GraphModularVersion G1, GraphModularVersion G2, List<int> U, int size, List<int> currentClique, bool edgeVersion)
+        private static bool[,] GetModularProduct(bool[,] graphA, bool[,] graphB)
         {
-            if (U == null || U.Count == 0)
+            var N = graphA.GetLength(0);
+            var M = graphB.GetLength(0);
+            var newSize = M * N;
+            var modularGraph = new bool[newSize, newSize];
+
+            for (int x = 0; x < newSize; x++)
             {
-                if (size > Value)
+                for (int y = 0; y < newSize; y++)
                 {
-                    Value = size;
-                    CliqueVertices = new List<int>();
-                    CliqueVertices.AddRange(currentClique);
+                    if (x == y)
+                        continue;
+                    int v1 = x / M;
+                    int w1 = y / M;
+                    int v2 = x % M;
+                    int w2 = y % M;
+                    if (v1 == w1 || v2 == w2)
+                        continue;
+
+                    if (graphA[v1, w1] && graphB[v2, w2] || !graphA[v1, w1] && !graphB[v2, w2])
+                        modularGraph[x, y] = modularGraph[y, x] = true;
                 }
-                return;
             }
 
-            int max_deg = -1;
-            int vertex = edgeVersion ? SelectVertexVE(U, currentClique) : SelectVertex(G, U, ref max_deg);
-
-            U.Remove(vertex);
-            currentClique.Add(vertex);
-
-            var vertexNeighbours = G.GetEdges(vertex);
-            var vertexNeighboursPrim = new List<int>();
-            vertexNeighboursPrim.AddRange(vertexNeighbours.Where((v) => G.Degree(v) >= Value));
-
-            var newSet = new List<int>();
-            newSet.AddRange(vertexNeighboursPrim.Where((v) => U.Contains(v)));
-
-            CliqueHeu(G, G1, G2, newSet, size + 1, currentClique, edgeVersion);
-            currentClique.Remove(vertex);
+            return modularGraph;
         }
 
-        private static int SelectVertex(GraphModularVersion G, List<int> U, ref int max_deg)
+        private static int[] CreateNeighbourCounts(bool[,] graph)
         {
-            var vertex = -1;
-            foreach (var u in U)
+            var neighbours = new int[graph.GetLength(0)];
+
+            for (int i = 0; i < neighbours.Length; i++)
             {
-                if (G.Degree(u) > max_deg)
-                {
-                    max_deg = G.Degree(u);
-                    vertex = u;
-                }
+                for (int j = 0; j < neighbours.Length; j++)
+                    if (graph[i, j])
+                        neighbours[i]++;
             }
 
-            return vertex;
-        }
-
-        private int SelectVertexVE(List<int> verticesSelectable, List<int> verticesSelected)
-        {
-            var decomposedSelectable = DecomposeModularGraph(verticesSelectable);
-            var decomposedSelected = DecomposeModularGraph(verticesSelected);
-            var bestValue = -1;
-            var selectedVertice = -1;
-            for (int i = 0; i < decomposedSelectable.Count; i++)
-            {
-                var selectable = decomposedSelectable[i];
-                var value = 0;
-                foreach (var selected in decomposedSelected)
-                    if (G1.vertices[selectable.a, selected.a])
-                        value++;
-                if (value > bestValue)
-                {
-                    bestValue = value;
-                    selectedVertice = verticesSelectable[i];
-                }
-            }
-            return selectedVertice;
+            return neighbours;
         }
     }
 }

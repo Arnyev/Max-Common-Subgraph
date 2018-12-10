@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using taio;
 
 namespace Taio
 {
@@ -12,8 +11,9 @@ namespace Taio
     {
         static void Main(string[] args)
         {
-            RunTimeTest();
             // RunTests();
+
+            RunTimeTest(30, 10, 21, 28, 30, 50, 120, 0.5);
 
             var delimiter = ',';
             var algorithmVersionFlag = false;
@@ -112,11 +112,11 @@ namespace Taio
                     break;
                 case 5:
                     PrintAlgorithmStart(algorithmNumber, "approx. A (V)");
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(graph1, graph2, edgeVersion: false);
+                    result = new CliqueSolver(graph1, graph2, edgeVersion: false).Solve();
                     break;
                 case 6:
                     PrintAlgorithmStart(algorithmNumber, "approx. A (V+E)");
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(graph1, graph2, edgeVersion: true);
+                    result = new CliqueSolver(graph1, graph2, edgeVersion: true).Solve();
                     break;
                 case 7:
                     PrintAlgorithmStart(algorithmNumber, "approx. B (V)");
@@ -235,7 +235,8 @@ namespace Taio
             Console.WriteLine();
         }
 
-        private static void RunTimeTest()
+        private static void RunTimeTest(int maxRepetitions, int minVerticeCount, int maxVEExact, int maxVExact,
+         int maxVApprVESplit, int maxVApprSplit, int maxVClique, double density)
         {
             var rand = new Random();
             StringBuilder stringBuilder = new StringBuilder();
@@ -244,7 +245,7 @@ namespace Taio
             List<(int, int)> result;
             int vertCount1, vertCount2, vertCount3, vertCount4, vertCount5, vertCount6;
             int edgeCount1, edgeCount2, edgeCount3, edgeCount4, edgeCount5, edgeCount6;
-            long time1, time2, time3, time4, time5, time6;
+            double time1, time2, time3, time4, time5, time6;
             string s;
 
             stringBuilder.Append("Graph 1 vertice count \t Graph 2 vertice count \t approximate density \t");
@@ -256,26 +257,29 @@ namespace Taio
             stringBuilder.Append("appr v + e vertCount \t appr v + e edgeCount \t appr v + e time \t");
             stringBuilder.AppendLine();
 
-            var density = 0.5;
-            for (int verticeCount = 12; verticeCount < 32; verticeCount++)
+            for (int verticeCount = minVerticeCount; verticeCount <= maxVClique; verticeCount++)
             {
+                Console.WriteLine($"Vertice count {verticeCount} being handled.");
                 time1 = time2 = time3 = time4 = time5 = time6 = vertCount1 = vertCount2 = vertCount3 = vertCount4 = vertCount5 = vertCount6 = edgeCount1 = edgeCount2 = edgeCount3 = edgeCount4 = edgeCount5 = edgeCount6 = 0;
                 s = verticeCount + "\t" + verticeCount + '\t' + density + '\t';
                 stringBuilder.Append(s);
 
-                for (int iz = 0; iz < 15; iz++)
+                for (int repetition = 0; repetition < maxRepetitions; repetition++)
                 {
+                    Console.WriteLine($"Repetition number {repetition} being handled.");
                     var g1 = Generate(verticeCount, density);
                     var g2 = Generate(verticeCount, density);
 
-                    if (verticeCount < 20)
+                    if (verticeCount <= maxVExact)
                     {
                         sw.Restart();
                         result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false).Solve()[0];
                         vertCount1 += result.Count;
                         time1 += sw.ElapsedMilliseconds;
                         edgeCount1 += Helpers.GetEdgeCount(result, g1);
-
+                    }
+                    if (verticeCount <= maxVEExact)
+                    {
                         sw.Restart();
                         result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
                         time2 += sw.ElapsedMilliseconds;
@@ -284,31 +288,40 @@ namespace Taio
                     }
 
                     sw.Restart();
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                    result = new CliqueSolver(g1, g2, false).Solve();
                     time3 += sw.ElapsedMilliseconds;
                     edgeCount3 += Helpers.GetEdgeCount(result, g1);
                     vertCount3 += result.Count;
 
                     sw.Restart();
-                    result = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                    result = new CliqueSolver(g1, g2, true).Solve();
                     time4 += sw.ElapsedMilliseconds;
                     edgeCount4 += Helpers.GetEdgeCount(result, g1);
                     vertCount4 += result.Count;
 
-                    sw.Restart();
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
-                    time5 += sw.ElapsedMilliseconds;
-                    edgeCount5 += Helpers.GetEdgeCount(result, g1);
-                    vertCount5 += result.Count;
-
-                    sw.Restart();
-                    result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
-                    time6 += sw.ElapsedMilliseconds;
-                    edgeCount6 += Helpers.GetEdgeCount(result, g1);
-                    vertCount6 += result.Count;
+                    if (verticeCount <= maxVApprSplit)
+                    {
+                        sw.Restart();
+                        result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
+                        time5 += sw.ElapsedMilliseconds;
+                        edgeCount5 += Helpers.GetEdgeCount(result, g1);
+                        vertCount5 += result.Count;
+                    }
+                    if (verticeCount <= maxVApprVESplit)
+                    {
+                        sw.Restart();
+                        result = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 2).Solve()[0];
+                        time6 += sw.ElapsedMilliseconds;
+                        edgeCount6 += Helpers.GetEdgeCount(result, g1);
+                        vertCount6 += result.Count;
+                    }
                 }
 
-                time1 /= 15; time2 /= 15; time3 /= 15; time4 /= 15; time5 /= 15; time6 /= 15; vertCount1 /= 15; vertCount2 /= 15; vertCount3 /= 15; vertCount4 /= 15; vertCount5 /= 15; vertCount6 /= 15; edgeCount1 /= 15; edgeCount2 /= 15; edgeCount3 /= 15; edgeCount4 /= 15; edgeCount5 /= 15; edgeCount6 /= 15;
+                time1 /= maxRepetitions; time2 /= maxRepetitions; time3 /= maxRepetitions; time4 /= maxRepetitions; time5 /= maxRepetitions; time6 /= maxRepetitions;
+                vertCount1 /= maxRepetitions; vertCount2 /= maxRepetitions; vertCount3 /= maxRepetitions; vertCount4 /= maxRepetitions;
+                vertCount5 /= maxRepetitions; vertCount6 /= maxRepetitions; edgeCount1 /= maxRepetitions; edgeCount2 /= maxRepetitions; edgeCount3 /= maxRepetitions;
+                edgeCount4 /= maxRepetitions; edgeCount5 /= maxRepetitions; edgeCount6 /= maxRepetitions;
+
                 stringBuilder.Append(vertCount1 + "\t" + edgeCount1 + '\t' + time1 + '\t');
                 stringBuilder.Append(vertCount2 + "\t" + edgeCount2 + '\t' + time2 + '\t');
                 stringBuilder.Append(vertCount3 + "\t" + edgeCount3 + '\t' + time3 + '\t');
@@ -339,10 +352,10 @@ namespace Taio
                 var result2 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false).Solve()[0];
                 if (!TestResult(result2, g1, g2))
                     throw new Exception();
-                var result5 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: false);
+                var result5 = new CliqueSolver(g1, g2, false).Solve();
                 if (!TestResult(result5, g1, g2))
                     throw new Exception();
-                var result6 = new MaxInducedSubgraphCliqueApproximation().FindCommonSubgraph(g1, g2, edgeVersion: true);
+                var result6 = new CliqueSolver(g1, g2, true).Solve();
                 if (!TestResult(result6, g1, g2))
                     throw new Exception();
                 var result7 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: false, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
@@ -351,6 +364,8 @@ namespace Taio
                 var result8 = new McSplitAlgorithmSolver(g1, g2, edgeVersion: true, returnAll: false, approximation: true, stepSize: 4).Solve()[0];
                 if (!TestResult(result8, g1, g2))
                     throw new Exception();
+
+                Console.WriteLine($"Test passes {verticeCount}, {verticeCount2}, {density}, {density2}");
             }
         }
 

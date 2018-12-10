@@ -7,7 +7,7 @@ namespace Taio
 {
     class McSplitAlgorithmSolver
     {
-        private int maxMappingSize = -1;
+        private int maxMappingSize = 1;
         private readonly List<List<(int, int)>> maxMappings = new List<List<(int, int)>>();
         private int maxEdgesCount = -1;
         private readonly bool returnAll;
@@ -181,8 +181,8 @@ namespace Taio
 
         private bool UpdateMappingCheckFinishedApproximation(List<(List<int>, List<int>)> future, List<(int, int)> mapping)
         {
-            var mappingValue = Helpers.SelectCommon(mapping, graphG, graphH);
-            if (mapping.Count > maxMappingSize || (mapping.Count == maxMappingSize && mappingValue < bestFutureWorth))
+            var mappingValue = future.Sum(x => x.Item1.Count * x.Item2.Count);
+            if (mapping.Count > maxMappingSize || (mapping.Count == maxMappingSize && mappingValue > bestFutureWorth))
             {
                 maxMappings.Clear();
                 maxMappings.Add(new List<(int, int)>(mapping));
@@ -199,6 +199,56 @@ namespace Taio
                 return true;
 
             return false;
+        }
+
+        List<(List<int>, List<int>)> RecreateFuture(List<(int, int)> mapping)
+        {
+            var takenA = new bool[graphG.GetLength(0)];
+            var takenB = new bool[graphH.GetLength(0)];
+
+            for (int i = 0; i < mapping.Count; i++)
+            {
+                takenA[mapping[i].Item1] = true;
+                takenB[mapping[i].Item2] = true;
+            }
+
+            var future = new Dictionary<ulong, (List<int>, List<int>)>();
+
+            for (int i = 0; i < takenA.Length; i++)
+            {
+                if (takenA[i])
+                    continue;
+
+                ulong vertexClassNumber = 0;
+
+                for (int j = 0; j < mapping.Count; j++)
+                    if (graphG[i, mapping[j].Item1])
+                        vertexClassNumber |= (1ul << j);
+
+                (List<int>, List<int>) vertexClass;
+                if (future.TryGetValue(vertexClassNumber, out vertexClass))
+                    vertexClass.Item1.Add(i);
+                else
+                    future.Add(vertexClassNumber, (new List<int> { i }, new List<int>()));
+            }
+
+            for (int i = 0; i < takenB.Length; i++)
+            {
+                if (takenB[i])
+                    continue;
+
+                ulong vertexClassNumber = 0;
+
+                for (int j = 0; j < mapping.Count; j++)
+                    if (graphH[i, mapping[j].Item2])
+                        vertexClassNumber |= (1ul << j);
+
+                (List<int>, List<int>) vertexClass;
+                if (future.TryGetValue(vertexClassNumber, out vertexClass))
+                    vertexClass.Item2.Add(i);
+            }
+
+            return future.Select(x => x.Value).Where(x => x.Item2.Count > 0).ToList();
         }
 
         private bool UpdateMappingCheckFinishedApproximationEdge(List<(List<int>, List<int>)> future, List<(int, int)> mapping)
